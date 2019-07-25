@@ -50,19 +50,19 @@ Java 有自动内存管理机制，不需要程序员手动释放无用内存
 在Java中有两种形式可以实现多态：继承（多个子类对同一方法的重写）和接口（实现接口并覆盖接口中同一方法）。
 
 # String StringBuffer 和 StringBuilder 的区别是什么? String 为什么是不可变的?
-可变性
+## 可变性
 
 简单的来说：String 类中使用 final 关键字修饰字符数组来保存字符串，private　final　char　value[]，所以 String 对象是不可变的。而StringBuilder 与 StringBuffer 都继承自 AbstractStringBuilder 类，在 AbstractStringBuilder 中也是使用字符数组保存字符串char[]value 但是没有用 final 关键字修饰，所以这两种对象都是可变的。
 
-线程安全性
+## 线程安全性
 
 String 中的对象是不可变的，也就可以理解为常量，线程安全。AbstractStringBuilder 是 StringBuilder 与 StringBuffer 的公共父类，定义了一些字符串的基本操作，如 expandCapacity、append、insert、indexOf 等公共方法。StringBuffer 对方法加了同步锁或者对调用的方法加了同步锁，所以是线程安全的。StringBuilder 并没有对方法进行加同步锁，所以是非线程安全的。　
 
-性能
+##性能
 
 每次对 String 类型进行改变的时候，都会生成一个新的 String 对象，然后将指针指向新的 String 对象。StringBuffer 每次都会对 StringBuffer 对象本身进行操作，而不是生成新的对象并改变对象引用。相同情况下使用 StringBuilder 相比使用 StringBuffer 仅能获得 10%~15% 左右的性能提升，但却要冒多线程不安全的风险。
 
-对于三者使用的总结：
+##对于三者使用的总结：
 
 操作少量的数据: 适用String
 单线程操作字符串缓冲区下操作大量数据: 适用StringBuilder
@@ -104,7 +104,7 @@ String 中的 equals 方法是被重写过的，因为 object 的 equals 方法�
 # hashCode 与 equals
 面试官可能会问你：“你重写过 hashcode 和 equals 么，为什么重写equals时必须重写hashCode方法？”
 
-hashCode（）介绍
+## hashCode（）介绍
 
 hashCode() 的作用是获取哈希码，也称为散列码；它实际上是返回一个int整数。这个哈希码的作用是确定该对象在哈希表中的索引位置。hashCode() 定义在JDK的Object.java中，这就意味着Java中的任何类都包含有hashCode() 函数。
 
@@ -116,7 +116,7 @@ hashCode() 的作用是获取哈希码，也称为散列码；它实际上是返
 
 通过我们可以看出：hashCode() 的作用就是获取哈希码，也称为散列码；它实际上是返回一个int整数。这个哈希码的作用是确定该对象在哈希表中的索引位置。**hashCode() 在散列表中才有用，在其它情况下没用。**在散列表中hashCode() 的作用是获取对象的散列码，进而确定该对象在散列表中的位置。
 
-hashCode（）与equals（）的相关规定
+## hashCode（）与equals（）的相关规定
 
 如果两个对象相等，则hashcode一定也是相同的
 
