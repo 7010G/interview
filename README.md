@@ -1383,6 +1383,18 @@ Kafka单机超过64个队列/分区，Load会发生明显的飙高现象，队�
 支持消息顺序，但是一台代理宕机后，就会产生消息乱序；
 社区更新较慢；
 
+## MRC
+MRC是跨机房消息同步组件(Message Replication Center)，用于跨机房间的以队列为单位的消息同步，支持单向与双向同步，以满足业务方在单个机房消费多机房全量消息的需求。
+
+
+
+注：经过 MRC 的消息会被 MRC 在消息头中添加一个  MRC_EZONE 的 header，用以指明该消息的原发地是哪个 ezone。业务方的消费者可以从消息头中取出该 MRC_EZONE 的值，可能的值为：alta1, altb1, altc1, xg1, wg1, zb1.
+
+原理：
+源端机房新建 queue (mrc_test_queue)，这个 queue 的 bindings 与本机房 test_queue 原先的 bindings 一致，所以 queue (mrc_test_queue) 只会接收到本机房原本应该接收到的消息，而不会接收到对端机房发来的消息。
+目的机房新增 test_queue 对应的 exchange (mrc_test_queue)，这个 exchange 会接收来自源端机房发来的消息，并且会绑定到本机房的queue (test_queue)，这样目的机房的 queue (test_queue) 就会接收到来自源端机房的消息。
+部署在源端机房的 MRC 作为消费者消费本机房 queue (mrc_test_queue) 上的消息，作为生产者发送消息到目的端的 exchange (mrc_test_queue)，由目的端的 exchange (mrc_test_queue) 路由消息到目的机房的 queue (test_queue)。
+
 # 大型网站系统架构常见问题
 ## 设计高可用系统的常用手段
 1，降级： 服务降级是当服务器压力剧增的情况下，根据当前业务情况及流量对一些服务和页面有策略的降级，以此释放服务器资源以保证核心任务的正常运行。降级往往会指定不同的级别，面临不同的异常等级执行不同的处理。根据服务方式：可以拒接服务，可以延迟服务，也有时候可以随机服务。根据服务范围：可以砍掉某个功能，也可以砍掉某些模块。总之服务降级需要根据不同的业务需求采用不同的降级策略。主要的目的就是服务虽然有损但是总比没有好；
