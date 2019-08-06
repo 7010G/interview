@@ -416,7 +416,7 @@ synchronized关键字解决的是多个线程之间访问资源的同步性，sy
 
 总结： synchronized 关键字加到 static 静态方法和 synchronized(class)代码块上都是是给 Class 类上锁。synchronized 关键字加到实例方法上是给对象实例上锁。尽量不要使用 synchronized(String a) 因为JVM中，字符串常量池具有缓存功能！
 
-## 双重校验锁实现对象单例（线程安全）
+## 双重校验锁实现对象单例（线程安全 懒汉式）
 public class Singleton {
 
     private volatile static Singleton uniqueInstance;
@@ -436,6 +436,22 @@ public class Singleton {
         }
         return uniqueInstance;
     }
+}
+
+## 单例模式 （饿汉式）
+
+public class EagerSingleton {  
+        // jvm保证在任何线程访问uniqueInstance静态变量之前一定先创建了此实例  
+        private static EagerSingleton uniqueInstance = new EagerSingleton();  
+  
+        // 私有的默认构造子，保证外界无法直接实例化  
+        private EagerSingleton() {  
+        }  
+  
+        // 提供全局访问点获取唯一的实例  
+        public static EagerSingleton getInstance() {  
+                return uniqueInstance;  
+        }  
 }
 
 ## 底层实现
