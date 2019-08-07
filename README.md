@@ -115,43 +115,45 @@ String 中的 equals 方法是被重写过的，因为 object 的 equals 方法�
 
 ## String 
 ### equals()
-public boolean equals(Object anObject) {
-        if (this == anObject) {
-            return true;
-        }
-        if (anObject instanceof String) {
-            String anotherString = (String)anObject;
-            int n = value.length;
-            if (n == anotherString.value.length) {
-                char v1[] = value;
-                char v2[] = anotherString.value;
-                int i = 0;
-                while (n-- != 0) {
-                    if (v1[i] != v2[i])
-                        return false;
-                    i++;
-                }
-                return true;
-            }
-        }
-        return false;
-    }
+
+	public boolean equals(Object anObject) {
+	        if (this == anObject) {
+	            return true;
+	        }
+	        if (anObject instanceof String) {
+	            String anotherString = (String)anObject;
+	            int n = value.length;
+	            if (n == anotherString.value.length) {
+	                char v1[] = value;
+	                char v2[] = anotherString.value;
+	                int i = 0;
+	                while (n-- != 0) {
+	                    if (v1[i] != v2[i])
+	                        return false;
+	                    i++;
+	                }
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
 
 ### hashcode()
-public int hashCode() {
-        int h = hash;
-        if (h == 0 && value.length > 0) {
-            char val[] = value;
 
-            for (int i = 0; i < value.length; i++) {
-                h = 31 * h + val[i];
-            }
-            hash = h;
-        }
-        return h;
-    }
+	public int hashCode() {
+	        int h = hash;
+	        if (h == 0 && value.length > 0) {
+	            char val[] = value;
 
-    选择数字31是因为它是一个奇质数，如果选择一个偶数会在乘法运算中产生溢出，导致数值信息丢失，因为乘二相当于移位运算。选择质数的优势并不是特别的明显，但这是一个传统。同时，数字31有一个很好的特性，即乘法运算可以被移位和减法运算取代，来获取更好的性能：31 * i == (i << 5) - i，现代的 Java 虚拟机可以自动的完成这个优化。
+	            for (int i = 0; i < value.length; i++) {
+	                h = 31 * h + val[i];
+	            }
+	            hash = h;
+	        }
+	        return h;
+	    }
+
+选择数字31是因为它是一个奇质数，如果选择一个偶数会在乘法运算中产生溢出，导致数值信息丢失，因为乘二相当于移位运算。选择质数的优势并不是特别的明显，但这是一个传统。同时，数字31有一个很好的特性，即乘法运算可以被移位和减法运算取代，来获取更好的性能：31 * i == (i << 5) - i，现代的 Java 虚拟机可以自动的完成这个优化。
 
 # hashCode 与 equals
 面试官可能会问你：“你重写过 hashcode 和 equals 么，为什么重写equals时必须重写hashCode方法？”
