@@ -1341,6 +1341,14 @@ Message发送到某个Exchange；
 在channel上添加监听：addConfirmListener，监听成功和失败的返回结果，根据具体的结果对消息进行重新发送、或记录日志等后续处理
 重写addConfirmListener两个方法，handleNack 失败处理和handleAck成功处理
 
+### 原理
+生产者将信道设置成confirm模式，一旦信道进入confirm模式，所有在该信道上面发布的消息都会被指派一个唯一的ID(从1开始)，一旦消息被投递到所有匹配的队列之后，broker就会发送一个确认给生产者（包含消息的唯一ID）,这就使得生产者知道消息已经正确到达目的队列了，如果消息和队列是可持久化的，那么确认消息会将消息写入磁盘之后发出，broker回传给生产者的确认消息中deliver-tag域包含了确认消息的序列号，此外broker也可以设置basic.ack的multiple域，表示到这个序列号之前的所有消息都已经得到了处理。
+
+confirm模式最大的好处在于他是异步的，一旦发布一条消息，生产者应用程序就可以在等信道返回确认的同时继续发送下一条消息，当消息最终得到确认之后，生产者应用便可以通过回调方法来处理该确认消息，如果RabbitMQ因为自身内部错误导致消息丢失，就会发送一条nack消息，生产者应用程序同样可以在回调方法中处理该nack消息。
+
+在channel 被设置成 confirm 模式之后，所有被 publish 的后续消息都将被 confirm（即 ack） 或者被nack一次。但是没有对消息被 confirm 的快慢做任何保证，并且同一条消息不会既被 confirm又被nack 。
+
+
 ## 消息可靠性（不丢失）
 1. Publishing可靠性，生产者设置confirm服务端确认机制，确认服务端成功接收到生产者消息。 
 
@@ -1463,6 +1471,15 @@ RocketMQ 的所有消息都是持久化的，先写入系统 pagecache(页高速
 RocketMQ社区关注度及成熟度也不及前两者；
 没有web管理界面，提供了一个CLI(命令行界面)管理工具带来查询、管理和诊断各种问题；
 没有在 mq 核心中去实现JMS等接口；
+
+### pull和push
+在rocketmq里，consumer被分为2类：MQPullConsumer和MQPushConsumer，其实本质都是拉模式（pull），即consumer轮询从broker拉取消息。
+
+区别是：
+
+push方式里，consumer把轮询过程封装了，并注册MessageListener监听器，取到消息后，唤醒MessageListener的consumeMessage()来消费，对用户而言，感觉消息是被推送过来的。
+
+pull方式里，取消息的过程需要用户自己写，首先通过打算消费的Topic拿到MessageQueue的集合，遍历MessageQueue集合，然后针对每个MessageQueue批量取消息，一次取完后，记录该队列下一次要取的开始offset，直到取完了，再换另一个MessageQueue。
 
 ## kafka
 基于Scala和Java开发
