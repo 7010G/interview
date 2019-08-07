@@ -1136,23 +1136,138 @@ Redis 通过 MULTI、EXEC、WATCH 等命令来实现事务(transaction)功能。
 串行化之后，就会导致系统的吞吐量会大幅度的降低，用比正常情况下多几倍的机器去支撑线上的一个请求。
 
 # Spring
+## Spring 框架
+Spring 是一种轻量级开发框架，旨在提高开发人员的开发效率以及系统的可维护性。Spring 官网：https://spring.io/。
+
+我们一般说 Spring 框架指的都是 Spring Framework，它是很多模块的集合，使用这些模块可以很方便地协助我们进行开发。这些模块是：核心容器、数据访问/集成,、Web、AOP（面向切面编程）、工具、消息和测试模块。比如：Core Container 中的 Core 组件是Spring 所有组件的核心，Beans 组件和 Context 组件是实现IOC和依赖注入的基础，AOP组件用来实现面向切面编程。
+
+Spring 官网列出的 Spring 的 6 个特征:
+
+核心技术 ：依赖注入(DI)，AOP，事件(events)，资源，i18n，验证，数据绑定，类型转换，SpEL。
+测试 ：模拟对象，TestContext框架，Spring MVC 测试，WebTestClient。
+数据访问 ：事务，DAO支持，JDBC，ORM，编组XML。
+Web支持 : Spring MVC和Spring WebFlux Web框架。
+集成 ：远程处理，JMS，JCA，JMX，电子邮件，任务，调度，缓存。
+语言 ：Kotlin，Groovy，动态语言。
+
+## Spring模块
+Spring Core： 基础,可以说 Spring 其他所有的功能都需要依赖于该类库。主要提供 IoC 依赖注入功能。
+
+Spring Aspects ： 该模块为与AspectJ的集成提供支持。
+
+Spring AOP ：提供了面向切面的编程实现。
+
+Spring JDBC : Java数据库连接。
+
+Spring JMS ：Java消息服务。
+
+Spring ORM : 用于支持Hibernate等ORM工具。
+
+Spring Web : 为创建Web应用程序提供支持。
+
+Spring Test : 提供了对 JUnit 和 TestNG 测试的支持。
+
+## 设计模式
+工厂设计模式 : Spring使用工厂模式通过 BeanFactory、ApplicationContext 创建 bean 对象。
+
+代理设计模式 : Spring AOP 功能的实现。
+
+单例设计模式 : Spring 中的 Bean 默认都是单例的。
+
+模板方法模式 : Spring 中 jdbcTemplate、hibernateTemplate 等以 Template 结尾的对数据库操作的类，它们就使用到了模板模式。
+
+包装器设计模式 : 我们的项目需要连接多个数据库，而且不同的客户在每次访问中根据需要会去访问不同的数据库。这种模式让我们可以根据客户的需求能够动态切换不同的数据源。
+
+观察者模式: Spring 事件驱动模型就是观察者模式很经典的一个应用。
+
+适配器模式 :Spring AOP 的增强或通知(Advice)使用到了适配器模式、spring MVC 中也是用到了适配器模式适配Controller。
+
+
 ## IoC 和 AOP
 ### IoC
-IoC（Inverse of Control:控制反转）是一种设计思想，将对象之间的相互依赖关系交给 IoC 容器来管理，并由 IoC 容器完成对象的注入。这样可以很大程度上简化应用的开发，把应用从复杂的依赖关系中解放出来。 IoC 容器就像是一个工厂一样，当我们需要创建一个对象的时候，只需要配置好配置文件/注解即可，完全不用考虑对象是如何被创建出来的。 在实际项目中一个 Service 类可能有几百甚至上千个类作为它的底层，假如我们需要实例化这个 Service，你可能要每次都要搞清这个 Service 所有底层类的构造函数，这可能会把人逼疯。如果利用 IoC 的话，你只需要配置好，然后在需要的地方引用就行了，这大大增加了项目的可维护性且降低了开发难度。
+初始化过程：XML(读取)--> Resource(解析) --> BeanDefinition(注册) --> BeanFactory
+
+IoC（Inverse of Control:控制反转）是一种设计思想，将对象之间的相互依赖关系交给 IoC 容器来管理，并由 IoC 容器完成对象的注入。IoC 容器是 Spring 用来实现 IoC 的载体， IoC 容器实际上就是个Map（key，value）,Map 中存放的是各种对象。这样可以很大程度上简化应用的开发，把应用从复杂的依赖关系中解放出来。 IoC 容器就像是一个工厂一样，当我们需要创建一个对象的时候，只需要配置好配置文件/注解即可，完全不用考虑对象是如何被创建出来的。 在实际项目中一个 Service 类可能有几百甚至上千个类作为它的底层，假如我们需要实例化这个 Service，你可能要每次都要搞清这个 Service 所有底层类的构造函数，这可能会把人逼疯。如果利用 IoC 的话，你只需要配置好，然后在需要的地方引用就行了，这大大增加了项目的可维护性且降低了开发难度。
 
 ### AOP
 AOP(Aspect-Oriented Programming:面向切面编程)能够将那些与业务无关，却为业务模块所共同调用的逻辑或责任（例如事务处理、日志管理、权限控制等）封装起来，便于减少系统的重复代码，降低模块间的耦合度，并有利于未来的可拓展性和可维护性。
 
 Spring AOP就是基于动态代理的，如果要代理的对象，实现了某个接口，那么Spring AOP会使用JDK Proxy，去创建代理对象;而对于没有实现接口的对象，Spring AOP会使用Cglib ，这时候Spring AOP会使用 Cglib 生成一个被代理对象的子类来作为代理
 
+#### Spring AOP 和 AspectJ AOP 有什么区别？
+Spring AOP 属于运行时增强，而 AspectJ 是编译时增强。 Spring AOP 基于代理(Proxying)，而 AspectJ 基于字节码操作(Bytecode Manipulation)。
+
+Spring AOP 已经集成了 AspectJ ，AspectJ 应该算的上是 Java 生态系统中最完整的 AOP 框架了。AspectJ 相比于 Spring AOP 功能更加强大，但是 Spring AOP 相对来说更简单，
+
+如果我们的切面比较少，那么两者性能差异不大。但是，当切面太多的话，最好选择 AspectJ ，它比Spring AOP 快很多。
+
 ## bean 的作用域
-singleton : 唯一 bean 实例，Spring 中的 bean 默认都是单例的。
+### singleton : 
+唯一 bean 实例，Spring 中的 bean 默认都是单例的。当一个 bean 的作用域为 singleton，那么Spring IoC容器中只会存在一个共享的 bean 实例，并且所有对 bean 的请求，只要 id 与该 bean 定义相匹配，则只会返回bean的同一实例。 singleton 是单例类型(对应于单例模式)，就是在创建起容器时就同时自动创建了一个bean的对象，不管你是否使用，但我们可以指定Bean节点的 lazy-init=”true” 来延迟初始化bean，这时候，只有在第一次获取bean时才会初始化bean，即第一次请求该bean时才初始化。 每次获取到的对象都是同一个对象。注意，singleton 作用域是Spring中的缺省作用域。
 
-prototype : 每次请求都会创建一个新的 bean 实例。
+Spring 容器可以管理 singleton 作用域下 bean 的生命周期，在此作用域下，Spring 能够精确地知道bean何时被创建，何时初始化完成，以及何时被销毁。而对于 prototype 作用域的bean，Spring只负责创建，当容器创建了 bean 的实例后，bean 的实例就交给了客户端的代码管理，Spring容器将不再跟踪其生命周期，并且不会管理那些被配置成prototype作用域的bean的生命周期。
 
-request : 每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP request内有效。
+### prototype : 
+每次请求都会创建一个新的 bean 实例。当一个bean的作用域为 prototype，表示一个 bean 定义对应多个对象实例。 prototype 作用域的 bean 会导致在每次对该 bean 请求（将其注入到另一个 bean 中，或者以程序的方式调用容器的 getBean() 方法**）时都会创建一个新的 bean 实例。prototype 是原型类型，它在我们创建容器的时候并没有实例化，而是当我们获取bean的时候才会去创建一个对象，而且我们每次获取到的对象都不是同一个对象。根据经验，对有状态的 bean 应该使用 prototype 作用域，而对无状态的 bean 则应该使用 singleton 作用域。
 
-session : 每一次HTTP请求都会产生一个新的 bean，该bean仅在当前 HTTP session 内有效。
+如果 bean 的 scope 设为prototype时，当容器关闭时，destroy 方法不会被调用。对于 prototype 作用域的 bean，有一点非常重要，那就是 Spring不能对一个 prototype bean 的整个生命周期负责：容器在初始化、配置、装饰或者是装配完一个prototype实例后，将它交给客户端，随后就对该prototype实例不闻不问了。 不管何种作用域，容器都会调用所有对象的初始化生命周期回调方法。但对prototype而言，任何配置好的析构生命周期回调方法都将不会被调用。清除prototype作用域的对象并释放任何prototype bean所持有的昂贵资源，都是客户端代码的职责（让Spring容器释放被prototype作用域bean占用资源的一种可行方式是，通过使用bean的后置处理器，该处理器持有要被清除的bean的引用）。谈及prototype作用域的bean时，在某些方面你可以将Spring容器的角色看作是Java new操作的替代者，任何迟于该时间点的生命周期事宜都得交由客户端来处理。
+
+### request : 
+每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP request内有效， 当请求结束后，该对象的生命周期即告结束。
+
+### session : 
+每一次HTTP请求都会产生一个新的 bean，该bean仅在当前 HTTP session 内有效。session只适用于Web程序，session 作用域表示该针对每一次 HTTP 请求都会产生一个新的 bean，同时该 bean 仅在当前 HTTP session 内有效.与request作用域一样，可以根据需要放心的更改所创建实例的内部状态，而别的 HTTP session 中根据 userPreferences 创建的实例，将不会看到这些特定于某个 HTTP session 的状态变化。当HTTP session最终被废弃的时候，在该HTTP session作用域内的bean也会被废弃掉。
+
+global-session： 全局session作用域，仅仅在基于portlet的web应用中才有意义，Spring5已经没有了。Portlet是能够生成语义代码(例如：HTML)片段的小型Java Web插件。它们基于portlet容器，可以像servlet一样处理HTTP请求。但是，与 servlet 不同，每个 portlet 都有不同的会话
+
+## bean的生命周期（https://www.cnblogs.com/zrtqsk/p/3735273.html
+Bean容器找到配置文件中 Spring Bean 的定义。
+
+Bean容器利用Java Reflection API创建一个Bean的实例。
+
+如果涉及到一些属性值 利用set方法设置一些属性值。
+
+如果Bean实现了BeanNameAware接口，调用setBeanName()方法，传入Bean的名字。
+
+如果Bean实现了BeanClassLoaderAware接口，调用setBeanClassLoader()方法，传入ClassLoader对象的实例。
+
+如果Bean实现了BeanFactoryAware接口，调用setBeanClassLoader()方法，传入ClassLoader对象的实例。
+
+与上面的类似，如果实现了其他*Aware接口，就调用相应的方法。
+
+如果有和加载这个Bean的Spring容器相关的BeanPostProcessor对象，执行postProcessBeforeInitialization()方法
+
+如果Bean实现了InitializingBean接口，执行afterPropertiesSet()方法。
+
+如果Bean在配置文件中的定义包含init-method属性，执行指定的方法。
+
+如果有和加载这个Bean的Spring容器相关的BeanPostProcessor对象，执行postProcessAfterInitialization()方法
+
+当要销毁Bean的时候，如果Bean实现了DisposableBean接口，执行destroy()方法。
+
+当要销毁Bean的时候，如果Bean在配置文件中的定义包含destroy-method属性，执行指定的方法。
+
+## Spring MVC
+MVC 是一种设计模式,Spring MVC 是一款很优秀的 MVC 框架。Spring MVC 可以帮助我们进行更简洁的Web层的开发，并且它天生与 Spring 框架集成。Spring MVC 下我们一般把后端项目分为 Service层（处理业务）、Dao层（数据库操作）、Entity层（实体类）、Controller层(控制层，返回数据给前台页面)。
+
+### 原理（过程）
+客户端（浏览器）发送请求，直接请求到 DispatcherServlet。
+
+DispatcherServlet 根据请求信息调用 HandlerMapping，解析请求对应的 Handler。
+
+解析到对应的 Handler（也就是我们平常说的 Controller 控制器）后，开始由 HandlerAdapter 适配器处理。
+
+HandlerAdapter 会根据 Handler 来调用真正的处理器开处理请求，并处理相应的业务逻辑。
+
+处理器处理完业务后，会返回一个 ModelAndView 对象，Model 是返回的数据对象，View 是个逻辑上的 View。
+
+ViewResolver 会根据逻辑 View 查找实际的 View。
+
+DispaterServlet 把返回的 Model 传给 View（视图渲染）。
+
+把 View 返回给请求者（浏览器）
+
+
 
 ## Spring事务
 1，编程式事务，在代码中硬编码。(不推荐使用)
@@ -1191,6 +1306,24 @@ TransactionDefinition.PROPAGATION_NEVER： 以非事务方式运行，如果当�
 #### 其他情况：
 
 TransactionDefinition.PROPAGATION_NESTED： 如果当前存在事务，则创建一个事务作为当前事务的嵌套事务来运行；如果当前没有事务，则该取值等价于TransactionDefinition.PROPAGATION_REQUIRED。
+
+## @Component 和 @Bean 的区别是什么？
+1，作用对象不同: @Component 注解作用于类，而@Bean注解作用于方法。
+
+2，@Component通常是通过类路径扫描来自动侦测以及自动装配到Spring容器中（我们可以使用 @ComponentScan 注解定义要扫描的路径从中找出标识了需要装配的类自动装配到 Spring 的 bean 容器中）。@Bean 注解通常是我们在标有该注解的方法中定义产生这个 bean,@Bean告诉了Spring这是某个类的示例，当我需要用它的时候还给我。
+
+3，@Bean 注解比 Component 注解的自定义性更强，而且很多地方我们只能通过 @Bean 注解来注册bean。比如当我们引用第三方库中的类需要装配到 Spring容器时，则只能通过 @Bean来实现。
+
+## 将一个类声明为Spring的 bean 的注解有哪些?
+我们一般使用 @Autowired 注解自动装配 bean，要想把类标识成可用于 @Autowired 注解自动装配的 bean 的类,采用以下注解可实现：
+
+@Component ：通用的注解，可标注任意类为 Spring 组件。如果一个Bean不知道属于哪个层，可以使用@Component 注解标注。
+
+@Repository : 对应持久层即 Dao 层，主要用于数据库相关操作。
+
+@Service : 对应服务层，主要涉及一些复杂的逻辑，需要用到 Dao层。
+
+@Controller : 对应 Spring MVC 控制层，主要用户接受用户请求并调用 Service 层返回数据给前端页面。
 
 # 消息队列
 ## 应用场景/使用消息队列的好处
