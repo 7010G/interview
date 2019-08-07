@@ -1424,11 +1424,17 @@ RocketMQ 让使用者在消费者端去解决该问题，即需要消费者端�
 优点：
 
 跨平台(JAVA编写与平台无关有，ActiveMQ几乎可以运行在任何的JVM上)
+
 可以用JDBC：可以将数据持久化到数据库
+
 支持JMS ：支持JMS的统一接口;
+
 支持自动重连；
+
 有安全机制：支持基于shiro，jaas等多种安全配置机制，可以对Queue/Topic进行认证和授权
+
 监控完善：拥有完善的监控，包括Web Console，JMX，Shell命令行，Jolokia的REST API；
+
 界面友善：提供的Web Console可以满足大部分情况，还有很多第三方的组件可以使用，如hawtio；
 
 缺点：
