@@ -459,42 +459,43 @@ synchronized关键字解决的是多个线程之间访问资源的同步性，sy
 总结： synchronized 关键字加到 static 静态方法和 synchronized(class)代码块上都是是给 Class 类上锁。synchronized 关键字加到实例方法上是给对象实例上锁。尽量不要使用 synchronized(String a) 因为JVM中，字符串常量池具有缓存功能！
 
 ## 双重校验锁实现对象单例（线程安全 懒汉式）
-public class Singleton {
 
-    private volatile static Singleton uniqueInstance;
+	public class Singleton {
 
-    private Singleton() {
-    }
+	    private volatile static Singleton uniqueInstance;
 
-    public static Singleton getUniqueInstance() {
-       //先判断对象是否已经实例过，没有实例化过才进入加锁代码
-        if (uniqueInstance == null) {
-            //类对象加锁
-            synchronized (Singleton.class) {
-                if (uniqueInstance == null) {
-                    uniqueInstance = new Singleton();
-                }
-            }
-        }
-        return uniqueInstance;
-    }
-}
+	    private Singleton() {
+	    }
+
+	    public static Singleton getUniqueInstance() {
+	       //先判断对象是否已经实例过，没有实例化过才进入加锁代码
+	        if (uniqueInstance == null) {
+	            //类对象加锁
+	            synchronized (Singleton.class) {
+	                if (uniqueInstance == null) {
+	                    uniqueInstance = new Singleton();
+	                }
+	            }
+	        }
+	        return uniqueInstance;
+	    }
+	}
 
 ## 单例模式 （饿汉式）
 
-public class EagerSingleton {  
-        // jvm保证在任何线程访问uniqueInstance静态变量之前一定先创建了此实例  
-        private static EagerSingleton uniqueInstance = new EagerSingleton();  
-  
-        // 私有的默认构造子，保证外界无法直接实例化  
-        private EagerSingleton() {  
-        }  
-  
-        // 提供全局访问点获取唯一的实例  
-        public static EagerSingleton getInstance() {  
-                return uniqueInstance;  
-        }  
-}
+	public class EagerSingleton {  
+	        // jvm保证在任何线程访问uniqueInstance静态变量之前一定先创建了此实例  
+	        private static EagerSingleton uniqueInstance = new EagerSingleton();  
+	  
+	        // 私有的默认构造子，保证外界无法直接实例化  
+	        private EagerSingleton() {  
+	        }  
+	  
+	        // 提供全局访问点获取唯一的实例  
+	        public static EagerSingleton getInstance() {  
+	                return uniqueInstance;  
+	        }  
+	}
 
 ## 底层实现
 synchronized 同步语句块的实现使用的是 monitorenter 和 monitorexit 指令，其中 monitorenter 指令指向同步代码块的开始位置，monitorexit 指令则指明同步代码块的结束位置。 当执行 monitorenter 指令时，线程试图获取锁也就是获取 monitor(monitor对象存在于每个Java对象的对象头中，synchronized 锁便是通过这种方式获取锁的，也是为什么Java中任意对象可以作为锁的原因) 的持有权。当计数器为0则可以成功获取，获取后将锁计数器设为1也就是加1。相应的在执行 monitorexit 指令后，将锁计数器设为0，表明锁被释放。如果获取对象锁失败，那当前线程就要阻塞等待，直到锁被另外一个线程释放为止。
@@ -1643,37 +1644,37 @@ Follower 和 Observer 唯一的区别在于 Observer 机器不参与 Leader 的�
 ## 冒泡排序
 ### 代码实现
 
-public class BubbleSort {
-    public static void sort(int[] array) {
-        if (array == null || array.length == 0) {
-            return;
-        }
+	public class BubbleSort {
+	    public static void sort(int[] array) {
+	        if (array == null || array.length == 0) {
+	            return;
+	        }
 
-        int length = array.length;
-        //外层：需要length-1次循环比较
-        for (int i = 0; i < length - 1; i++) {
-            //内层：每次循环需要两两比较的次数，每次比较后，都会将当前最大的数放到最后位置，所以每次比较次数递减一次
-            for (int j = 0; j < length - 1 - i; j++) {
-                if (array[j] > array[j+1]) {
-                    //交换数组array的j和j+1位置的数据
-                    swap(array, j, j+1);
-                }
-            }
-        }
-    }
+	        int length = array.length;
+	        //外层：需要length-1次循环比较
+	        for (int i = 0; i < length - 1; i++) {
+	            //内层：每次循环需要两两比较的次数，每次比较后，都会将当前最大的数放到最后位置，所以每次比较次数递减一次
+	            for (int j = 0; j < length - 1 - i; j++) {
+	                if (array[j] > array[j+1]) {
+	                    //交换数组array的j和j+1位置的数据
+	                    swap(array, j, j+1);
+	                }
+	            }
+	        }
+	    }
 
-    /**
-     * 交换数组array的i和j位置的数据
-     * @param array 数组
-     * @param i 下标i
-     * @param j 下标j
-     */
-    public static void swap(int[] array, int i, int j) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-}
+	    /**
+	     * 交换数组array的i和j位置的数据
+	     * @param array 数组
+	     * @param i 下标i
+	     * @param j 下标j
+	     */
+	    public static void swap(int[] array, int i, int j) {
+	        int temp = array[i];
+	        array[i] = array[j];
+	        array[j] = temp;
+	    }
+	}
 
 
 ### 算法效率
@@ -1682,63 +1683,63 @@ public class BubbleSort {
 ## 快速排序
 ### 代码实现
 
-public class QuickSort {
-    
-public static void quickSort(int[] array) {
-    _quickSort(array, 0, array.length - 1);
-    System.out.println(Arrays.toString(array) + " quickSort");
-}
- 
- 
-private static int getMiddle(int[] list, int low, int high) {
-    int tmp = list[low];    //数组的第一个作为中轴
-    while (low < high) {
-        while (low < high && list[high] >= tmp) {
-            high--;
-        }
- 
- 
-        list[low] = list[high];   //比中轴小的记录移到低端
-        while (low < high && list[low] <= tmp) {
-            low++;
-        }
- 
- 
-        list[high] = list[low];   //比中轴大的记录移到高端
-    }
-    list[low] = tmp;              //中轴记录到尾
-    return low;                  //返回中轴的位置
-}
- 
- 
-private static void _quickSort(int[] list, int low, int high) {
-    if (low < high) {
-        int middle = getMiddle(list, low, high);  //将list数组进行一分为二
-        _quickSort(list, low, middle - 1);      //对低字表进行递归排序
-        _quickSort(list, middle + 1, high);      //对高字表进行递归排序
-    }
-
+	public class QuickSort {
+	    
+	public static void quickSort(int[] array) {
+	    _quickSort(array, 0, array.length - 1);
+	    System.out.println(Arrays.toString(array) + " quickSort");
+	}
+	 
+	 
+	private static int getMiddle(int[] list, int low, int high) {
+	    int tmp = list[low];    //数组的第一个作为中轴
+	    while (low < high) {
+	        while (low < high && list[high] >= tmp) {
+	            high--;
+	        }
+	 
+	 
+	        list[low] = list[high];   //比中轴小的记录移到低端
+	        while (low < high && list[low] <= tmp) {
+	            low++;
+	        }
+	 
+	 
+	        list[high] = list[low];   //比中轴大的记录移到高端
+	    }
+	    list[low] = tmp;              //中轴记录到尾
+	    return low;                  //返回中轴的位置
+	}
+	 
+	 
+	private static void _quickSort(int[] list, int low, int high) {
+	    if (low < high) {
+	        int middle = getMiddle(list, low, high);  //将list数组进行一分为二
+	        _quickSort(list, low, middle - 1);      //对低字表进行递归排序
+	        _quickSort(list, middle + 1, high);      //对高字表进行递归排序
+	    }
+	}
 
 
 ## 选择排序
 ### 代码实现
 
-public class SelectSort {
-    public static void sort(int[] arr) {
-        for (int i = 0; i < arr.length - 1; i++) {
-            int min = i;
-            for (int j = i+1; j < arr.length; j ++) { //选出之后待排序中值最小的位置
-                if (arr[j] < arr[min]) {
-                    min = j;
-                }
-            }
-            if (min != i) {
-                arr[min] = arr[i] + arr[min];
-                arr[i] = arr[min] - arr[i];
-                arr[min] = arr[min] - arr[i];
-            }
-        }
-    }
+	public class SelectSort {
+	    public static void sort(int[] arr) {
+	        for (int i = 0; i < arr.length - 1; i++) {
+	            int min = i;
+	            for (int j = i+1; j < arr.length; j ++) { //选出之后待排序中值最小的位置
+	                if (arr[j] < arr[min]) {
+	                    min = j;
+	                }
+	            }
+	            if (min != i) {
+	                arr[min] = arr[i] + arr[min];
+	                arr[i] = arr[min] - arr[i];
+	                arr[min] = arr[min] - arr[i];
+	            }
+	        }
+	    }
 
 # 秒杀系统设计
 ## 热点隔离
