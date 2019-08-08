@@ -1736,6 +1736,27 @@ Zookeeper将所有数据存储在内存中，数据模型是一棵树（Znode Tr
 ## Watcher
 Watcher（事件监听器），是Zookeeper中的一个很重要的特性。Zookeeper允许用户在指定节点上注册一些Watcher，并且在一些特定事件触发的时候，ZooKeeper服务端会将事件通知到感兴趣的客户端上去，该机制是Zookeeper实现分布式协调服务的重要特性。
 
+事件类型:(znode节点相关的)
+
+		 EventType:NodeCreated            //节点创建
+
+		 EventType:NodeDataChanged        //节点的数据变更
+
+		 EventType:NodeChildrentChanged   //子节点下的数据变更
+
+		 EventType:NodeDeleted
+
+状态类型:(是跟客户端实例相关的)
+
+		 KeeperState:Disconneced        //连接失败
+
+ 		 KeeperState:SyncConnected	//连接成功	 
+
+		 KeeperState:AuthFailed         //认证失败
+		 
+		 KeeperState:Expired            //会话过期
+
+
 ## ACL
 Zookeeper采用ACL（AccessControlLists）策略来进行权限控制，类似于 UNIX 文件系统的权限控制。Zookeeper 定义了如下5种权限。
 1，CREATE：创建子节点的权限；
