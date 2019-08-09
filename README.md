@@ -56,7 +56,7 @@ destroy()终止阶段
 Servlet容器加载Servlet，加载完成后，Servlet容器会创建一个Servlet实例并调用init()方法，init()方法只会调用一次，
 Servlet容器会在一下几种情况装载Servlet：
 
-1，Servlet容器启动时自动装载某些servlet，实现这个需要在web.xml文件中添加<loadstartup>1</load-on-startup>
+1，Servlet容器启动时自动装载某些servlet，实现这个需要在web.xml文件中添加<load-on-startup>1</load-on-startup>
 
 2，在Servlet容器启动后，客户首次向Servlet发送请求
 
