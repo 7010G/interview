@@ -239,6 +239,64 @@ String 中的对象是不可变的，也就可以理解为常量，线程安全�
 
 每次对 String 类型进行改变的时候，都会生成一个新的 String 对象，然后将指针指向新的 String 对象。StringBuffer 每次都会对 StringBuffer 对象本身进行操作，而不是生成新的对象并改变对象引用。相同情况下使用 StringBuilder 相比使用 StringBuffer 仅能获得 10%~15% 左右的性能提升，但却要冒多线程不安全的风险。
 
+## 实现
+### String
+	public final class String implements java.io.Serializable, Comparable<String>, CharSequence {
+
+    private final char value[];
+
+
+    private int hash; // Default to 0
+
+
+    private static final long serialVersionUID = -6849794470754667710L;
+
+    private static final ObjectStreamField[] serialPersistentFields =
+        new ObjectStreamField[0];
+
+    .....
+
+	}
+
+### StringBuilder
+	public final class StringBuilder extends AbstractStringBuilder implements java.io.Serializable, CharSequence
+	{
+
+	    /** use serialVersionUID for interoperability */
+	    static final long serialVersionUID = 4383685877147921099L;
+
+	    @Override
+	    public StringBuilder append(String str) {
+	        super.append(str);
+	        return this;
+	    }
+
+	    ...
+
+	}
+
+
+### StringBuffer
+	public final class StringBuffer extends AbstractStringBuilder implements java.io.Serializable, CharSequence{
+
+	    /**
+	     * A cache of the last value returned by toString. Cleared
+	     * whenever the StringBuffer is modified.
+	     */
+	    private transient char[] toStringCache;
+
+	    /** use serialVersionUID from JDK 1.0.2 for interoperability */
+	    static final long serialVersionUID = 3388685877147921107L;
+
+	    @Override
+	    public synchronized StringBuffer append(String str) {
+	        toStringCache = null;
+	        super.append(str);
+	        return this;
+	    }
+
+	    .....
+	}
 
 ## 对于三者使用的总结：
 
