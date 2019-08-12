@@ -559,6 +559,34 @@ B*树是B+树的变种，相对于B+树他们的不同之处如下：
 
 套接字（socket）：socket，即套接字是一种通信机制，凭借这种机制，客户/服务器（即要进行通信的进程）系统的开发工作既可以在本地单机上进行，也可以跨网络进行。也就是说它可以让不在同一台计算机但通过网络连接计算机上的进程进行通信。也因为这样，套接字明确地将客户端和服务器区分开来。
 
+## 创建线程的方式（https://blog.csdn.net/longshengguoji/article/details/41126119
+### 继承Thread类创建线程类
+
+（1）定义Thread类的子类，并重写该类的run方法，该run方法的方法体就代表了线程要完成的任务。因此把run()方法称为执行体。
+
+（2）创建Thread子类的实例，即创建了线程对象。
+
+（3）调用线程对象的start()方法来启动该线程。
+
+### 通过Runnable接口创建线程类
+
+（1）定义runnable接口的实现类，并重写该接口的run()方法，该run()方法的方法体同样是该线程的线程执行体。
+
+（2）创建 Runnable实现类的实例，并依此实例作为Thread的target来创建Thread对象，该Thread对象才是真正的线程对象。
+
+（3）调用线程对象的start()方法来启动该线程。
+
+### 通过Callable和Future创建线程
+
+（1）创建Callable接口的实现类，并实现call()方法，该call()方法将作为线程执行体，并且有返回值。
+
+（2）创建Callable实现类的实例，使用FutureTask类来包装Callable对象，该FutureTask对象封装了该Callable对象的call()方法的返回值。
+
+（3）使用FutureTask对象作为Thread对象的target创建并启动新线程。
+
+（4）调用FutureTask对象的get()方法来获得子线程执行结束后的返回值
+
+
 ## 线程通信方式
 1、锁机制
 
@@ -755,6 +783,30 @@ SingleThreadScheduledExecutor： 适用于需要单个后台线程执行周期�
 	DiscardOldestPolicy：丢弃掉阻塞队列中存放时间最久的任务，执行当前任务
 
 ### 实现（http://dockone.io/article/8284
+
+## 线程池的四种实现方式
+ExecutorService是线程池接口。它定义了4中线程池：
+
+### newCachedThreadPool：
+底层：返回ThreadPoolExecutor实例，corePoolSize为0；maximumPoolSize为Integer.MAX_VALUE；keepAliveTime为60L；unit为TimeUnit.SECONDS；workQueue为SynchronousQueue(同步队列)
+通俗：当有新任务到来，则插入到SynchronousQueue中，由于SynchronousQueue是同步队列，因此会在池中寻找可用线程来执行，若有可以线程则执行，若没有可用线程则创建一个线程来执行该任务；若池中线程空闲时间超过指定大小，则该线程会被销毁。
+适用：执行很多短期异步的小程序或者负载较轻的服务器
+
+### newFixedThreadPool：
+底层：返回ThreadPoolExecutor实例，接收参数为所设定线程数量nThread，corePoolSize为nThread，maximumPoolSize为nThread；keepAliveTime为0L(不限时)；unit为：TimeUnit.MILLISECONDS；WorkQueue为：new LinkedBlockingQueue<Runnable>() 无界阻塞队列
+通俗：创建可容纳固定数量线程的池子，每隔线程的存活时间是无限的，当池子满了就不在添加线程了；如果池中的所有线程均在繁忙状态，对于新任务会进入阻塞队列中(无界的阻塞队列)，但是，在线程池空闲时，即线程池中没有可运行任务时，它不会释放工作线程，还会占用一定的系统资源。
+适用：执行长期的任务，性能好很多
+
+### newSingleThreadExecutor:
+底层：FinalizableDelegatedExecutorService包装的ThreadPoolExecutor实例，corePoolSize为1；maximumPoolSize为1；keepAliveTime为0L；unit为：TimeUnit.MILLISECONDS；workQueue为：new LinkedBlockingQueue<Runnable>() 无界阻塞队列
+通俗：创建只有一个线程的线程池，且线程的存活时间是无限的；当该线程正繁忙时，对于新任务会进入阻塞队列中(无界的阻塞队列)
+适用：一个任务一个任务执行的场景
+
+### NewScheduledThreadPool:
+
+底层：创建ScheduledThreadPoolExecutor实例，corePoolSize为传递来的参数，maximumPoolSize为Integer.MAX_VALUE；keepAliveTime为0；unit为：TimeUnit.NANOSECONDS；workQueue为：new DelayedWorkQueue() 一个按超时时间升序排序的队列
+通俗：创建一个固定大小的线程池，线程池内线程存活时间无限制，线程池可以支持定时及周期性任务执行，如果所有线程均处于繁忙状态，对于新任务会进入DelayedWorkQueue队列中，这是一种按照超时时间排序的队列结构
+适用：周期性执行任务的场景
 
 # 悲观锁与乐观锁
 ## 悲观锁
