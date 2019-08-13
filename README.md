@@ -395,6 +395,67 @@ Set(注重独一无二的性质): 不允许重复的集合。不会有多个元�
 Map(用Key来搜索的专家): 键值对存储。Map会维护与Key有关联的值。两个Key可以引用相同的对象，但Key不能重复，典型的Key是String类型，但也可以是任何对象。
 
 # Arraylist 与 LinkedList
+## ArrayList
+	public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable{
+	    private static final long serialVersionUID = 8683452581122892189L;
+
+	    /**
+	     * Default initial capacity.
+	     */
+	    private static final int DEFAULT_CAPACITY = 10;
+
+	    /**
+	     * Shared empty array instance used for empty instances.
+	     */
+	    private static final Object[] EMPTY_ELEMENTDATA = {};
+
+	    /**
+	     * Shared empty array instance used for default sized empty instances. We
+	     * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
+	     * first element is added.
+	     */
+	    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+
+	    /**
+	     * The array buffer into which the elements of the ArrayList are stored.
+	     * The capacity of the ArrayList is the length of this array buffer. Any
+	     * empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
+	     * will be expanded to DEFAULT_CAPACITY when the first element is added.
+	     */
+	    transient Object[] elementData; // non-private to simplify nested class access
+
+	    /**
+	     * The size of the ArrayList (the number of elements it contains).
+	     *
+	     * @serial
+	     */
+	    private int size;
+
+	    ...
+    }
+
+## LinkedList
+	public class LinkedList<E> extends AbstractSequentialList<E> implements List<E>, Deque<E>, Cloneable, java.io.Serializable{
+	    transient int size = 0;
+
+	    /**
+	     * Pointer to first node.
+	     * Invariant: (first == null && last == null) ||
+	     *            (first.prev == null && first.item != null)
+	     */
+	    transient Node<E> first;
+
+	    /**
+	     * Pointer to last node.
+	     * Invariant: (first == null && last == null) ||
+	     *            (last.next == null && last.item != null)
+	     */
+	    transient Node<E> last;
+
+	    ...
+
+	}
+
 1. 是否保证线程安全： ArrayList 和 LinkedList 都是不同步的，也就是不保证线程安全；
 
 2. 底层数据结构： Arraylist 底层使用的是 Object 数组；LinkedList 底层使用的是 双向链表 数据结构（JDK1.6之前为循环链表，JDK1.7取消了循环。注意双向链表和双向循环链表的区别，下面有介绍到！）
