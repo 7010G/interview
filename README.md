@@ -2414,111 +2414,6 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 
 3）设置仲裁机制。例如设置参考IP（如网关IP），当心跳线完全断开时，2个节点都各自ping一下参考IP，不通则表明断点就出在本端。不仅“心跳”、还兼对外“服务”的本端网络链路断了，即使启动（或继续）应用服务也没有用了，那就主动放弃竞争，让能够ping通参考IP的一端去起服务。更保险一些，ping不通参考IP的一方干脆就自我重启，以彻底释放有可能还占用着的那些共享资源。
 
-
-
-# 排序算法（https://juejin.im/post/5b95da8a5188255c775d8124
-## 冒泡排序
-### 代码实现
-
-	public class BubbleSort {
-	    public static void sort(int[] array) {
-	        if (array == null || array.length == 0) {
-	            return;
-	        }
-
-	        int length = array.length;
-	        //外层：需要length-1次循环比较
-	        for (int i = 0; i < length - 1; i++) {
-	            //内层：每次循环需要两两比较的次数，每次比较后，都会将当前最大的数放到最后位置，所以每次比较次数递减一次
-	            for (int j = 0; j < length - 1 - i; j++) {
-	                if (array[j] > array[j+1]) {
-	                    //交换数组array的j和j+1位置的数据
-	                    swap(array, j, j+1);
-	                }
-	            }
-	        }
-	    }
-
-	    /**
-	     * 交换数组array的i和j位置的数据
-	     * @param array 数组
-	     * @param i 下标i
-	     * @param j 下标j
-	     */
-	    public static void swap(int[] array, int i, int j) {
-	        int temp = array[i];
-	        array[i] = array[j];
-	        array[j] = temp;
-	    }
-	}
-
-
-### 算法效率
-冒泡排序是稳定的排序算法，最容易实现的排序, 最坏的情况是每次都需要交换, 共需遍历并交换将近n²/2次, 时间复杂度为O(n²). 最佳的情况是内循环遍历一次后发现排序是对的, 因此退出循环, 时间复杂度为O(n). 平均来讲, 时间复杂度为O(n²). 由于冒泡排序中只有缓存的temp变量需要内存空间, 因此空间复杂度为常量O(1)。
-
-## 快速排序
-### 代码实现
-
-	public class QuickSort {
-	    
-	public static void quickSort(int[] array) {
-	    _quickSort(array, 0, array.length - 1);
-	    System.out.println(Arrays.toString(array) + " quickSort");
-	}
-	 
-	 
-	private static int getMiddle(int[] list, int low, int high) {
-	    int tmp = list[low];    //数组的第一个作为中轴
-	    while (low < high) {
-	        while (low < high && list[high] >= tmp) {
-	            high--;
-	        }
-	 
-	 
-	        list[low] = list[high];   //比中轴小的记录移到低端
-	        while (low < high && list[low] <= tmp) {
-	            low++;
-	        }
-	 
-	 
-	        list[high] = list[low];   //比中轴大的记录移到高端
-	    }
-	    list[low] = tmp;              //中轴记录到尾
-	    return low;                  //返回中轴的位置
-	}
-	 
-	 
-	private static void _quickSort(int[] list, int low, int high) {
-	    if (low < high) {
-	        int middle = getMiddle(list, low, high);  //将list数组进行一分为二
-	        _quickSort(list, low, middle - 1);      //对低字表进行递归排序
-	        _quickSort(list, middle + 1, high);      //对高字表进行递归排序
-	    }
-	}
-
-
-## 选择排序
-### 代码实现
-
-	public class SelectSort {
-	    public static void sort(int[] arr) {
-	        for (int i = 0; i < arr.length - 1; i++) {
-	            int min = i;
-	            for (int j = i+1; j < arr.length; j ++) { //选出之后待排序中值最小的位置
-	                if (arr[j] < arr[min]) {
-	                    min = j;
-	                }
-	            }
-	            if (min != i) {
-	                arr[min] = arr[i] + arr[min];
-	                arr[i] = arr[min] - arr[i];
-	                arr[min] = arr[min] - arr[i];
-	            }
-	        }
-	    }
-
-# 最小堆解决TOP K (https://blog.csdn.net/xiao__gui/article/details/8687982
-
 # 秒杀系统设计
 ## 热点隔离
 秒杀系统设计的第一个原则就是将这种热点数据隔离出来，不要让1%的请求影响到另外的99%，隔离出来后也更方便对这1%的请求做针对性优化。针对秒杀我们做了多个层次的隔离：
@@ -2602,8 +2497,463 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
     方案3：采用局部淘汰法。选取前100个元素，并排序，记为序列L。然后一次扫描剩余的元素x，与排好序的100个元素中最小的元素比，如果比这个最小的要大，那么把这个最小的元素删除，并把x利用插入排序的思想，插入到序列L中。依次循环，知道扫描了所有的元素。复杂度为O(100w*100)。
 
 
+# 算法
+## 排序算法（https://juejin.im/post/5b95da8a5188255c775d8124
+### 冒泡排序
+
+	public class BubbleSort {
+	    public static void sort(int[] array) {
+	        if (array == null || array.length == 0) {
+	            return;
+	        }
+
+	        int length = array.length;
+	        //外层：需要length-1次循环比较
+	        for (int i = 0; i < length - 1; i++) {
+	            //内层：每次循环需要两两比较的次数，每次比较后，都会将当前最大的数放到最后位置，所以每次比较次数递减一次
+	            for (int j = 0; j < length - 1 - i; j++) {
+	                if (array[j] > array[j+1]) {
+	                    //交换数组array的j和j+1位置的数据
+	                    swap(array, j, j+1);
+	                }
+	            }
+	        }
+	    }
+
+	    /**
+	     * 交换数组array的i和j位置的数据
+	     * @param array 数组
+	     * @param i 下标i
+	     * @param j 下标j
+	     */
+	    public static void swap(int[] array, int i, int j) {
+	        int temp = array[i];
+	        array[i] = array[j];
+	        array[j] = temp;
+	    }
+	}
 
 
+算法效率：冒泡排序是稳定的排序算法，最容易实现的排序, 最坏的情况是每次都需要交换, 共需遍历并交换将近n²/2次, 时间复杂度为O(n²). 最佳的情况是内循环遍历一次后发现排序是对的, 因此退出循环, 时间复杂度为O(n). 平均来讲, 时间复杂度为O(n²). 由于冒泡排序中只有缓存的temp变量需要内存空间, 因此空间复杂度为常量O(1)。
+
+## 快速排序
+
+	public class QuickSort {
+	    
+	public static void quickSort(int[] array) {
+	    _quickSort(array, 0, array.length - 1);
+	    System.out.println(Arrays.toString(array) + " quickSort");
+	}
+	 
+	 
+	private static int getMiddle(int[] list, int low, int high) {
+	    int tmp = list[low];    //数组的第一个作为中轴
+	    while (low < high) {
+	        while (low < high && list[high] >= tmp) {
+	            high--;
+	        }
+	 
+	 
+	        list[low] = list[high];   //比中轴小的记录移到低端
+	        while (low < high && list[low] <= tmp) {
+	            low++;
+	        }
+	 
+	 
+	        list[high] = list[low];   //比中轴大的记录移到高端
+	    }
+	    list[low] = tmp;              //中轴记录到尾
+	    return low;                  //返回中轴的位置
+	}
+	 
+	 
+	private static void _quickSort(int[] list, int low, int high) {
+	    if (low < high) {
+	        int middle = getMiddle(list, low, high);  //将list数组进行一分为二
+	        _quickSort(list, low, middle - 1);      //对低字表进行递归排序
+	        _quickSort(list, middle + 1, high);      //对高字表进行递归排序
+	    }
+	}
 
 
+## 选择排序
 
+	public class SelectSort {
+	    public static void sort(int[] arr) {
+	        for (int i = 0; i < arr.length - 1; i++) {
+	            int min = i;
+	            for (int j = i+1; j < arr.length; j ++) { //选出之后待排序中值最小的位置
+	                if (arr[j] < arr[min]) {
+	                    min = j;
+	                }
+	            }
+	            if (min != i) {
+	                arr[min] = arr[i] + arr[min];
+	                arr[i] = arr[min] - arr[i];
+	                arr[min] = arr[min] - arr[i];
+	            }
+	        }
+	    }
+
+# 最小堆解决TOP K (https://blog.csdn.net/xiao__gui/article/details/8687982
+
+## 常见算法
+### 两数相加
+	class Solution {
+	    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+	        return addTwoNumbers(l1, l2, null);
+	    }
+
+	    public ListNode addTwoNumbers(ListNode l1, ListNode l2, ListNode prev) {
+	        ListNode next1 = null;
+	        ListNode next2 = null;
+	        int val1 = 0;
+	        int val2 = 0;
+	        if (l1 != null) {
+	            val1 = l1.val;
+	            next1 = l1.next;
+	        }
+	        if (l2 != null) {
+	            val2 = l2.val;
+	            next2 = l2.next;
+	        }
+	        ListNode newNode = new ListNode(val1 + val2);
+	        if (prev != null) {
+	            if (prev.val >= 10) {
+	                prev.val %= 10;
+	                newNode.val += 1;
+	            }
+	        }
+	        if (next1 != null || next2 != null) {
+	            newNode.next = addTwoNumbers(next1, next2, newNode);
+	        } else if (newNode.val >= 10) {
+	            newNode.next = addTwoNumbers(next1, next2, newNode);
+	        }
+	        return newNode;
+	    }
+	}
+
+### 无重复字符串的最长子串
+	class Solution {
+	    public int lengthOfLongestSubstring(String s) {
+	        int n = s.length(), ans = 0;
+	        Map<Character, Integer> map = new HashMap<>();
+	        for (int end = 0, start = 0; end < n; end++) {
+	            char alpha = s.charAt(end);
+	            if (map.containsKey(alpha)) {
+	                start = Math.max(map.get(alpha), start);
+	            }
+	            ans = Math.max(ans, end - start + 1);
+	            map.put(s.charAt(end), end + 1);
+	        }
+	        return ans;
+	    }
+	}
+
+### 最长回文子字符串
+	class Solution {
+	    public String longestPalindrome(String s) {
+	        if (s.equals("")) {
+	            return "";
+	        }
+	        int length = s.length();
+	        String reversal = new StringBuffer(s).reverse().toString(); // 反转字符串
+	        int[][] cell = new int[length][length];
+	        int maxLen = 0; // 最长回文子串长度
+	        int maxEnd = 0; // 最长回文子串结束位置
+	        for (int i = 0; i < length; i++) {
+	            for (int j = 0; j < length; j++) {
+	                if (reversal.charAt(i) == s.charAt(j)) {
+	                    if (i == 0 || j == 0) {
+	                        cell[i][j] = 1;
+	                    } else {
+	                        cell[i][j] = cell[i - 1][j - 1] + 1;
+	                    }
+	                }
+	                /**************修改的地方***************************/
+	                // 可为空，不用置为0，减少运行时间
+	//                else {
+	//                    cell[i][j] = 0;
+	//                }
+	                /**************************************************/
+	                if (cell[i][j] > maxLen) {
+	                    /**************修改的地方***************************/
+	                    int beforeIndex = length - 1 - i; // 反向子串末尾字符的原始索引
+	                    int firstIndex =  j - cell[i][j] + 1; // 子串的首字符索引
+	                    if (beforeIndex == firstIndex) { 
+	                        maxLen = cell[i][j];
+	                        maxEnd = j;
+	                    }
+	                    /**************************************************/
+	                }
+	            }
+	        }
+	        return s.substring(maxEnd + 1 - maxLen, maxEnd + 1);
+	    }
+	}
+
+### 最多水的容器
+	public class Solution {
+	    public int maxArea(int[] height) {
+	        int maxarea = 0, l = 0, r = height.length - 1;
+	        while (l < r) {
+	            maxarea = Math.max(maxarea, Math.min(height[l], height[r]) * (r - l));
+	            if (height[l] < height[r])
+	                l++;
+	            else
+	                r--;
+	        }
+	        return maxarea;
+	    }
+	}
+
+### 最长公共前缀
+	public String longestCommonPrefix(String[] strs) {
+	   if (strs.length == 0) return "";
+	   String prefix = strs[0];
+	   for (int i = 1; i < strs.length; i++)
+	       while (strs[i].indexOf(prefix) != 0) {
+	           prefix = prefix.substring(0, prefix.length() - 1);
+	           if (prefix.isEmpty()) return "";
+	       }        
+	   return prefix;
+	}
+
+### 三数之和
+	class Solution {
+	    public List<List<Integer>> threeSum(int[] nums) {
+	        Arrays.sort(nums);
+	        List<List<Integer>> tuples = new ArrayList<>();
+	        
+	        for(int i = 0; i < nums.length-2; i++){
+	            if(i > 0 && nums[i-1] == nums[i]) continue; //去重
+	            
+	            int l = i+1, r = nums.length-1;
+	            if(nums[l] < 0 && Integer.MIN_VALUE-nums[l] > nums[i]) continue; //如果溢出最小值则跳过
+	            if(nums[i] > 0 && Integer.MAX_VALUE-nums[l] < nums[i]) break; //溢出最大值直接结束，不可能会有新的三元组出现了
+	           
+	            while(l < r){
+	                if(nums[r] > -nums[i]-nums[l]){
+	                    while(l < r && nums[r-1] == nums[r]) r--; //右指针去重
+	                    r--;
+	                }
+	                else if(nums[r] < -nums[i]-nums[l]){
+	                    while(l < r && nums[l+1] == nums[l]) l++; //左指针去重
+	                    l++;
+	                }
+	                else{
+	                    tuples.add(Arrays.asList(nums[i],nums[l],nums[r]));
+	                    while(l < r && nums[r-1] == nums[r]) r--; //左指针去重
+	                    while(l < r && nums[l+1] == nums[l]) l++; //右指针去重
+	                    r--;
+	                    l++;
+	                }
+	            }
+	        }
+	        return tuples;
+	    }
+	}
+
+### 三数之和最接近的数
+	class Solution {
+	    public int threeSumClosest(int[] nums, int target) {
+	        Arrays.sort(nums);
+	        int ans = nums[0] + nums[1] + nums[2];
+	        for(int i=0;i<nums.length;i++) {
+	            int start = i+1, end = nums.length - 1;
+	            while(start < end) {
+	                int sum = nums[start] + nums[end] + nums[i];
+	                if(Math.abs(target - sum) < Math.abs(target - ans))
+	                    ans = sum;
+	                if(sum > target)
+	                    end--;
+	                else if(sum < target)
+	                    start++;
+	                else
+	                    return ans;
+	            }
+	        }
+	        return ans;
+	    }
+	}
+
+### 电话号码的数字组合
+	public class Solution {
+
+	    private String letterMap[] = {
+	            " ",    //0
+	            "",     //1
+	            "abc",  //2
+	            "def",  //3
+	            "ghi",  //4
+	            "jkl",  //5
+	            "mno",  //6
+	            "pqrs", //7
+	            "tuv",  //8
+	            "wxyz"  //9
+	    };
+
+	    private ArrayList<String> res;
+
+	    public List<String> letterCombinations(String digits) {
+
+	        res = new ArrayList<String>();
+	        if(digits.equals(""))
+	            return res;
+
+	        findCombination(digits, 0, "");
+	        return res;
+	    }
+
+	    private void findCombination(String digits, int index, String s){
+
+	        if(index == digits.length()){
+	            res.add(s);
+	            return;
+	        }
+
+	        Character c = digits.charAt(index);
+	        String letters = letterMap[c - '0'];
+	        for(int i = 0 ; i < letters.length() ; i ++){
+	            findCombination(digits, index+1, s + letters.charAt(i));
+	        }
+
+	        return;
+	    }
+
+	}
+
+### 删除链表倒数第N个节点
+	class Solution {
+	    public ListNode removeNthFromEnd(ListNode head, int n) {
+	        ListNode right = head;
+	        ListNode left = head;
+	        for (int i = 0; i < n; i++) {
+	            right = right.next;
+	        }
+	        
+	        if (right == null) {
+	            head = head.next;
+	            return head;
+	        }
+	        while (right.next != null) {
+	            left = left.next;
+	            right = right.next;
+	        }
+	        left.next = left.next.next;
+	        return head;
+	    }
+	}
+
+### 有效的括号
+	class Solution {
+
+	  // Hash table that takes care of the mappings.
+	  private HashMap<Character, Character> mappings;
+
+	  // Initialize hash map with mappings. This simply makes the code easier to read.
+	  public Solution() {
+	    this.mappings = new HashMap<Character, Character>();
+	    this.mappings.put(')', '(');
+	    this.mappings.put('}', '{');
+	    this.mappings.put(']', '[');
+	  }
+
+	  public boolean isValid(String s) {
+
+	    // Initialize a stack to be used in the algorithm.
+	    Stack<Character> stack = new Stack<Character>();
+
+	    for (int i = 0; i < s.length(); i++) {
+	      char c = s.charAt(i);
+
+	      // If the current character is a closing bracket.
+	      if (this.mappings.containsKey(c)) {
+
+	        // Get the top element of the stack. If the stack is empty, set a dummy value of '#'
+	        char topElement = stack.empty() ? '#' : stack.pop();
+
+	        // If the mapping for this bracket doesn't match the stack's top element, return false.
+	        if (topElement != this.mappings.get(c)) {
+	          return false;
+	        }
+	      } else {
+	        // If it was an opening bracket, push to the stack.
+	        stack.push(c);
+	      }
+	    }
+
+	    // If the stack still contains elements, then it is an invalid expression.
+	    return stack.isEmpty();
+	  }
+	}
+
+### 合并两个有序链表
+	class Solution {
+	    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+	        // maintain an unchanging reference to node ahead of the return node.
+	        ListNode prehead = new ListNode(-1);
+
+	        ListNode prev = prehead;
+	        while (l1 != null && l2 != null) {
+	            if (l1.val <= l2.val) {
+	                prev.next = l1;
+	                l1 = l1.next;
+	            } else {
+	                prev.next = l2;
+	                l2 = l2.next;
+	            }
+	            prev = prev.next;
+	        }
+
+	        // exactly one of l1 and l2 can be non-null at this point, so connect
+	        // the non-null list to the end of the merged list.
+	        prev.next = l1 == null ? l2 : l1;
+
+	        return prehead.next;
+	    }
+	}
+
+### 两两交换链表中的节点
+	class Solution {
+	    public ListNode swapPairs(ListNode head) {
+	        if(head == null || head.next == null){
+	            return head;
+	        }
+	        ListNode next = head.next;
+	        head.next = swapPairs(next.next);
+	        next.next = head;
+	        return next;
+	    }
+	}
+
+### 删除排序数组中的重复项
+	public int removeDuplicates(int[] nums) {
+	    if (nums.length == 0) return 0;
+	    int i = 0;
+	    for (int j = 1; j < nums.length; j++) {
+	        if (nums[j] != nums[i]) {
+	            i++;
+	            nums[i] = nums[j];
+	        }
+	    }
+	    return i + 1;
+	}
+
+### 移除数组中指定元素
+	class Solution {
+	    public int removeElement(int[] nums, int val) {
+	        if (nums.length == 0) {
+	            return 0;
+	        }
+	        
+	        int index = 0;
+	        for (int i = 0; i < nums.length; i ++) {
+	            if (nums[i] != val) {
+	                nums[index] = nums[i];
+	                index ++;
+	            }
+	        }
+	        return index + 1;
+	    }
+	}
