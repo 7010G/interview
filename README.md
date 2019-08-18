@@ -43,6 +43,24 @@ JRE 是 Java运行时环境。它是运行已编译 Java 程序所需的所有�
 
 	boolean        1字节      1*8      false、true
 
+# public、private、protecte、default
+public： Java语言中访问限制最宽的修饰符，一般称之为“公共的”。被其修饰的类、属性以及方法不仅可以跨类访问，而且允许跨包（package）访问。
+
+private: Java语言中对访问权限限制的最窄的修饰符，一般称之为“私有的”。被其修饰的类、属性以及方法只能被该类的对象访问，其子类不能访问，更不能允许跨包访问。
+
+protect: 介于public 和 private 之间的一种访问修饰符，一般称之为“保护形”。被其修饰的类、属性以及方法只能被类本身的方法及子类访问，即使子类在不同的包中也可以访问。
+
+default：即不加任何访问修饰符，通常称为“默认访问模式“。该模式下，只允许在同一个包中进行访问。
+
+# 浅拷贝与深拷贝
+## 浅拷贝
+所谓的浅拷贝就是拷贝指向对象的指针,意思就是说:拷贝出来的目标对象的指针和源对象的指针指向的内存空间是同一块空间.
+浅拷贝只是一种简单的拷贝,让几个对象公用一个内存,然而当内存销毁的时候,指向这个内存空间的所有指针需要重新定义,不然会造成野指针错误
+
+## 深拷贝
+所谓的深拷贝指拷贝对象的具体内容,其内容地址是自助分配的,拷贝结束之后,内存中的值是完全相同的,但是内存地址是不一样的,两个对象之间相互不影响,也互不干涉.
+
+
 # Servlet生命周期
 主要有三个方法：
 
@@ -142,12 +160,56 @@ Java 有自动内存管理机制，不需要程序员手动释放无用内存
 
 在Java中有两种形式可以实现多态：继承（多个子类对同一方法的重写）和接口（实现接口并覆盖接口中同一方法）。
 
+## 继承与聚合的区别
+继承指的是一个类继承另外的一个类的功能，并可以增加它自己的新功能的能力，继承是类与类或者接口与接口之间最常见的关系；在Java中此类关系通过关键字extends明确标识。
+
+聚合指的是聚合体现的是整体与部分、拥有的关系，此时整体与部分之间是可分离的，他们可以具有各自的生命周期；
+
+# Java对象实例化顺序
+Java程序在执行过程中，类，对象以及它们成员加载、初始化的顺序如下： 
+
+1、首先加载要创建对象的类及其直接与间接父类。 
+
+2、在类被加载的同时会将静态成员进行加载，主要包括静态成员变量的初始化，静态语句块的执行，在加载时按代码的先后顺序进行。 
+
+3、需要的类加载完成后，开始创建对象，首先会加载非静态的成员，主要包括非静态成员变量的初始化，非静态语句块的执行，在加载时按代码的先后顺序进行。 
+
+4、最后执行构造器，构造器执行完毕，对象生成。
+
+所以java对象实例化时的顺序为：
+
+1，父类的静态成员变量和静态代码块加载
+
+2，子类的静态成员变量和静态代码块加载
+
+3，父类成员变量和方法块加载
+
+4，父类的构造函数加载
+
+5，子类成员变量和方法块加载
+
+6，子类的构造函数加载
+
+
 # 反射机制与使用场景
 JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。
 
 ## 优缺点
 优点： 运行期类型的判断，动态加载类，提高代码灵活度。
 缺点： 性能瓶颈：反射相当于一系列解释操作，通知 JVM 要做的事情，性能比直接的java代码要慢很多。
+
+## 三种方式
+对象.getClass()方式
+
+类名.Class方式
+
+Class.forName( 类的包名 ) 方式
+
+### Class.forName和classloader的区别
+class.forName()前者除了将类的.class文件加载到jvm中之外，还会对类进行解释，执行类中的static块。
+而classLoader只干一件事情，就是将.class文件加载到jvm中，不会执行static中的内容,只有在newInstance才会去执行static块。
+Class.forName(name, initialize, loader)带参函数也可控制是否加载static块。并且只有调用了newInstance()方法采用调用构造函数，创建类的对象
+
 
 ## 场景
 ①我们在使用JDBC连接数据库时使用Class.forName()通过反射加载数据库的驱动程序；②Spring框架也用到很多反射机制，最经典的就是xml的配置模式。Spring 通过 XML 配置模式装载 Bean 的过程：1) 将程序内所有 XML 或 Properties 配置文件加载入内存中; 2)Java类里面解析xml或properties里面的内容，得到对应实体类的字节码字符串以及相关的属性信息; 3)使用反射机制，根据这个字符串获得某个类的Class实例; 4)动态配置实例的属性
@@ -385,6 +447,28 @@ NIO (New I/O): NIO是一种同步非阻塞的I/O模型，在Java 1.4 中引入�
 
 AIO (Asynchronous I/O): AIO 也就是 NIO 2。在 Java 7 中引入了 NIO 的改进版 NIO 2,它是异步非阻塞的IO模型。异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。AIO 是异步IO的缩写，虽然 NIO 在网络操作中，提供了非阻塞的方法，但是 NIO 的 IO 行为还是同步的。对于 NIO 来说，我们的业务线程是在 IO 操作准备好时，得到通知，接着就由这个线程自行进行 IO 操作，IO操作本身是同步的。
 
+# Reactor和Proactor模型（https://blog.csdn.net/u013074465/article/details/46276967
+ Reactor模式是处理并发I/O比较常见的一种模式，用于同步I/O，中心思想是将所有要处理的I/O事件注册到一个中心I/O多路复用器上，同时主线程/进程阻塞在多路复用器上；一旦有I/O事件到来或是准备就绪(文件描述符或socket可读、写)，多路复用器返回并将事先注册的相应I/O事件分发到对应的处理器中。
+
+　　Reactor是一种事件驱动机制，和普通函数调用的不同之处在于：应用程序不是主动的调用某个API完成处理，而是恰恰相反，Reactor逆置了事件处理流程，应用程序需要提供相应的接口并注册到Reactor上，如果相应的事件发生，Reactor将主动调用应用程序注册的接口，这些接口又称为“回调函数”。用“好莱坞原则”来形容Reactor再合适不过了：不要打电话给我们，我们会打电话通知你。
+
+       Reactor模式与Observer模式在某些方面极为相似：当一个主体发生改变时，所有依属体都得到通知。不过，观察者模式与单个事件源关联，而反应器模式则与多个事件源关联 。
+
+在Reactor模式中，有5个关键的参与者：
+
+1，描述符（handle）：由操作系统提供的资源，用于识别每一个事件，如Socket描述符、文件描述符、信号的值等。在Linux中，它用一个整数来表示。事件可以来自外部，如来自客户端的连接请求、数据等。事件也可以来自内部，如信号、定时器事件。
+
+2，同步事件多路分离器（event demultiplexer）：事件的到来是随机的、异步的，无法预知程序何时收到一个客户连接请求或收到一个信号。所以程序要循环等待并处理事件，这就是事件循环。在事件循环中，等待事件一般使用I/O复用技术实现。在linux系统上一般是select、poll、epol_waitl等系统调用，用来等待一个或多个事件的发生。I/O框架库一般将各种I/O复用系统调用封装成统一的接口，称为事件多路分离器。调用者会被阻塞，直到分离器分离的描述符集上有事件发生。
+
+3，事件处理器（event handler）：I/O框架库提供的事件处理器通常是由一个或多个模板函数组成的接口。这些模板函数描述了和应用程序相关的对某个事件的操作，用户需要继承它来实现自己的事件处理器，即具体事件处理器。因此，事件处理器中的回调函数一般声明为虚函数，以支持用户拓展。
+
+4，具体的事件处理器（concrete event handler）：是事件处理器接口的实现。它实现了应用程序提供的某个服务。每个具体的事件处理器总和一个描述符相关。它使用描述符来识别事件、识别应用程序提供的服务。
+
+5， 管理器（reactor）：定义了一些接口，用于应用程序控制事件调度，以及应用程序注册、删除事件处理器和相关的描述符。它是事件处理器的调度核心。 Reactor管理器使用同步事件分离器来等待事件的发生。一旦事件发生，Reactor管理器先是分离每个事件，然后调度事件处理器，最后调用相关的模 板函数来处理这个事件。
+
+Reactor管理器并不是应用程序负责等待事件、分离事件和调度事件。Reactor并没有被具体的事件处理器调度，而是管理器调度具体的事件处理器，由事件处理器对发生的事件作出处理，这就是Hollywood原则。应用程序要做的仅仅是实现一个具体的事件处理器，然后把它注册到Reactor管理器中。接下来的工作由管理器来完成：如果有相应的事件发生，Reactor会主动调用具体的事件处理器，由事件处理器对发生的事件作出处理。
+
+
 # Java 集合（https://www.jianshu.com/p/50e19038e361
 
 # List,Set,Map
@@ -496,6 +580,25 @@ ConcurrentHashMap 和 Hashtable 的区别主要体现在实现线程安全的方
 
 实现线程安全的方式（重要）： ① 在JDK1.7的时候，ConcurrentHashMap（分段锁） 对整个桶数组进行了分割分段(Segment)，每一把锁只锁容器其中一部分数据，多线程访问容器里不同数据段的数据，就不会存在锁竞争，提高并发访问率。 到了 JDK1.8 的时候已经摒弃了Segment的概念，而是直接用 Node 数组+链表+红黑树的数据结构来实现，并发控制使用 synchronized 和 CAS 来操作。（JDK1.6以后 对 synchronized锁做了很多优化） 整个看起来就像是优化过且线程安全的 HashMap，虽然在JDK1.8中还能看到 Segment 的数据结构，但是已经简化了属性，只是为了兼容旧版本；② Hashtable(同一把锁) :使用 synchronized 来保证线程安全，效率非常低下。当一个线程访问同步方法时，其他线程也访问同步方法，可能会进入阻塞或轮询状态，如使用 put 添加元素，另一个线程不能使用 put 添加元素，也不能使用 get，竞争会越来越激烈效率越低。
 
+## JAVA8 的 ConcurrentHashMap 为什么放弃了分段锁,有什么问题吗,如果你来设计,你如何设计
+
+它摒弃了Segment（锁段）的概念，而是启用了一种全新的方式实现,利用CAS算法，段锁性能也不是很高，而CAS操作是CPU支持的操作，是一种原子操作
+
+# LinkedHashMap(顺序HashMap) 实现有序
+1，重新定义了数组中保存的元素Entry（继承于HashMap.Entry)，该Entry除了保存当前对象的引用外，还保存了其上一个元素before和下一个元素after的引用，从而在哈希表的基础上又构成了双向链接列表。仍然保留next属性，所以既可像HashMap一样快速查找，用next获取该链表下一个Entry，也可以通过双向链接，通过after完成所有数据的有序迭代。
+
+2，accessOrder为true时，按访问顺序排序，false时，按插入顺序排序。默认false。
+
+3，存储put。
+LinkedHashMap并未重写父类HashMap的put方法，而是重写了父类HashMap的put方法调用的子方法void recordAccess(HashMap m)，void addEntry(int hash, K key, V value, int bucketIndex) 和void createEntry(int hash, K key, V value, int bucketIndex)，提供了自己特有的双向链接列表的实现。
+
+	1）put时，key已存在，替换value（同HashMap），并调用recordAccess方法，方法作用为根据accessOrder的值保持链表顺序不变或者将将访问的当前节点移到链表尾部(头结点的前一个节点)。
+
+	2）key不存在，添加新的Entry，仍然是Table[i]= newEntry，旧链表首个为newEntry.next（同HashMap）,将newEntry加到双向链表末尾（即header前，这样就保留了插入顺序）。
+
+
+
+
 # 二叉树遍历（https://blog.csdn.net/My_Jobs/article/details/43451187
 
 # 平衡二叉树、B-tree、B+tree、B*树 （https://zhuanlan.zhihu.com/p/27700617
@@ -602,6 +705,47 @@ B*树是B+树的变种，相对于B+树他们的不同之处如下：
 4、对于两个非new生成的Integer对象，进行比较时，如果两个变量的值在区间-128到127之间，则比较结果为true，如果两个变量的值不在此区间，则比较结果为false。
 
 # Java Exception异常的续程次结构（https://blog.csdn.net/renfufei/article/details/16344847
+## Error和Exception的联系
+继承结构：Error和Exception都是继承于Throwable，RuntimeException继承自Exception。
+
+Error和RuntimeException及其子类称为未检查异常（Unchecked exception），其它异常成为受检查异常（Checked Exception）。
+
+## Error和Exception的区别
+Error类一般是指与虚拟机相关的问题，如系统崩溃，虚拟机错误，内存空间不足，方法调用栈溢出等。如java.lang.StackOverFlowError和Java.lang.OutOfMemoryError。对于这类错误，Java编译器不去检查他们。对于这类错误的导致的应用程序中断，仅靠程序本身无法恢复和预防，遇到这样的错误，建议让程序终止。
+
+Exception类表示程序可以处理的异常，可以捕获且可能恢复。遇到这类异常，应该尽可能处理异常，使程序恢复运行，而不应该随意终止异常。
+
+## 运行时异常（Runtime Exception）和受检查的异常(Checked Exception )。
+RuntimeException：其特点是Java编译器不去检查它，也就是说，当程序中可能出现这类异常时，即使没有用try……catch捕获，也没有用throws抛出，还是会编译通过，如除数为零的ArithmeticException、错误的类型转换、数组越界访问和试图访问空指针等。处理RuntimeException的原则是：如果出现RuntimeException，那么一定是程序员的错误。
+
+受检查的异常（IOException等）：这类异常如果没有try……catch也没有throws抛出，编译是通不过的。这类异常一般是外部错误，例如文件找不到、试图从文件尾后读取数据等，这并不是程序本身的错误，而是在应用环境中出现的外部错误。
+
+### 常见Runtime Exception
+ArrayStoreException                试图将错误类型的对象存储到一个对象数组时抛出的异常
+
+ClassCastException                试图将对象强制转换为不是实例的子类时，抛出该异常
+
+IllegalArgumentException         抛出的异常表明向方法传递了一个不合法或不正确的参数
+
+IndexOutOfBoundsException   指示某排序索引（例如对数组、字符串或向量的排序）超出范围时抛出
+
+NoSuchElementException       表明枚举中没有更多的元素
+
+NullPointerException                当应用程序试图在需要对象的地方使用 null 时，抛出该异常
+
+
+## throw 和 throws两个关键字有什么不同
+throw 是用来抛出任意异常的，你可以抛出任意 Throwable，包括自定义的异常类对象；throws总是出现在一个函数头中，用来标明该成员函数可能抛出的各种异常。如果方法抛出了异常，那么调用这个方法的时候就需要处理这个异常。
+
+## try-catch-finally-return执行顺序
+1、不管是否有异常产生，finally块中代码都会执行；
+
+2、当try和catch中有return语句时，finally块仍然会执行；
+
+3、finally是在return后面的表达式运算后执行的，所以函数返回值是在finally执行前确定的。无论finally中的代码怎么样，返回的值都不会改变，仍然是之前return语句中保存的值；
+
+4、finally中最好不要包含return，否则程序会提前退出，返回值不是try或catch中保存的返回值。
+
 
 # 线程、进程、程序
 线程与进程相似，但线程是一个比进程更小的执行单位。一个进程在其执行的过程中可以产生多个线程。与进程不同的是同类的多个线程共享同一块内存空间和一组系统资源，所以系统在产生一个线程，或是在各个线程之间作切换工作时，负担要比进程小得多，也正因为如此，线程也被称为轻量级进程。
@@ -775,6 +919,38 @@ synchronized关键字解决的是多个线程之间访问资源的同步性，sy
 	                return uniqueInstance;  
 	        }  
 	}
+
+## 登记事单例
+	public class Dengjishi {  
+	    private static Map<String,Dengjishi> map = new HashMap<String,Dengjishi>();  
+	    static{  
+	    	Dengjishi single = new Dengjishi();  
+	        map.put(single.getClass().getName(), single);  
+	        
+	        
+	    }  
+	    //保护的默认构造子  
+	    protected Dengjishi(){
+	    	System.out.println("-----实例对象被创建-----");
+	    }  
+	    //静态工厂方法,返还此类惟一的实例  
+	    public static Dengjishi getInstance(String name) {  
+	        if(name == null) {  
+	            name = Dengjishi.class.getName();  
+	            System.out.println("name == null"+"--->name="+name);  
+	        }  
+	        if(map.get(name) == null) {  
+	            try {  
+	                map.put(name, (Dengjishi) Class.forName(name).newInstance());  
+	            } catch (Exception e) {  
+	                e.printStackTrace();  
+	            }
+	        }  
+	        return map.get(name);  
+	    }     
+	     
+	}
+
 
 ## 底层实现
 synchronized 同步语句块的实现使用的是 monitorenter 和 monitorexit 指令，其中 monitorenter 指令指向同步代码块的开始位置，monitorexit 指令则指明同步代码块的结束位置。 当执行 monitorenter 指令时，线程试图获取锁也就是获取 monitor(monitor对象存在于每个Java对象的对象头中，synchronized 锁便是通过这种方式获取锁的，也是为什么Java中任意对象可以作为锁的原因) 的持有权。当计数器为0则可以成功获取，获取后将锁计数器设为1也就是加1。相应的在执行 monitorexit 指令后，将锁计数器设为0，表明锁被释放。如果获取对象锁失败，那当前线程就要阻塞等待，直到锁被另外一个线程释放为止。
@@ -1326,6 +1502,30 @@ TCP 提供面向连接的服务。在传送数据之前必须先建立连接，�
 
 缺点： 不能向发送方反映出接收方已经正确收到的所有分组的信息。 比如：发送方发送了 5条 消息，中间第三条丢失（3号），这时接收方只能对前两个发送确认。发送方无法知道后三个分组的下落，而只好把后三个全部重传一次。这也叫 Go-Back-N（回退 N），表示需要退回来重传已经发送过的 N 个消息。
 
+## TCP粘包，拆包
+假设客户端分别发送了两个数据包D1和D2给服务端，由于服务端一次读取到的字节数是不确定的，故可能存在以下4种情况。
+
+（1）服务端分两次读取到了两个独立的数据包，分别是D1和D2，没有粘包和拆包；
+
+（2）服务端一次接收到了两个数据包，D1和D2粘合在一起，被称为TCP粘包；
+
+（3）服务端分两次读取到了两个数据包，第一次读取到了完整的D1包和D2包的部分内容，第二次读取到了D2包的剩余内容，这被称为TCP拆包；
+
+（4）服务端分两次读取到了两个数据包，第一次读取到了D1包的部分内容D1_1，第二次读取到了D1包的剩余内容D1_2和D2包的整包。
+
+如果此时服务端TCP接收滑窗非常小，而数据包D1和D2比较大，很有可能会发生第五种可能，即服务端分多次才能将D1和D2包接收完全，期间发生多次拆包。
+
+### 粘包问题的解决策略
+由于底层的TCP无法理解上层的业务数据，所以在底层是无法保证数据包不被拆分和重组的，这个问题只能通过上层的应用协议栈设计来解决，根据业界的主流协议的解决方案，可以归纳如下。
+
+（1）消息定长，例如每个报文的大小为固定长度200字节，如果不够，空位补空格；
+
+（2）在包尾增加回车换行符进行分割，例如FTP协议；
+
+（3）将消息分为消息头和消息体，消息头中包含表示消息总长度（或者消息体长度）的字段，通常设计思路为消息头的第一个字段使用int32来表示消息的总长度；
+
+（4）更复杂的应用层协议。
+
 ## 各种协议与HTTP协议之间的关系
 ### 客户端：
 HTTP协议的职责：生成对目标服务器的HTTP请求报文；
@@ -1687,6 +1887,16 @@ IoC（Inverse of Control:控制反转）是一种设计思想，将对象之间�
 AOP(Aspect-Oriented Programming:面向切面编程)能够将那些与业务无关，却为业务模块所共同调用的逻辑或责任（例如事务处理、日志管理、权限控制等）封装起来，便于减少系统的重复代码，降低模块间的耦合度，并有利于未来的可拓展性和可维护性。
 
 Spring AOP就是基于动态代理的，如果要代理的对象，实现了某个接口，那么Spring AOP会使用JDK Proxy，去创建代理对象;而对于没有实现接口的对象，Spring AOP会使用Cglib ，这时候Spring AOP会使用 Cglib 生成一个被代理对象的子类来作为代理
+
+#### JDK和CGLIB动态代理区别（https://blog.csdn.net/yhl_jxy/article/details/80635012
+1、JDK动态代理
+利用拦截器(拦截器必须实现InvocationHanlder)加上反射机制生成一个实现代理接口的匿名类，
+
+在调用具体方法前调用InvokeHandler来处理。
+
+2、CGLIB动态代理
+利用ASM开源包，对代理对象类的class文件加载进来，通过修改其字节码生成子类来处理。
+
 
 #### Spring AOP 和 AspectJ AOP 有什么区别？
 Spring AOP 属于运行时增强，而 AspectJ 是编译时增强。 Spring AOP 基于代理(Proxying)，而 AspectJ 基于字节码操作(Bytecode Manipulation)。
@@ -3267,5 +3477,47 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 	    return (t1.val == t2.val)
 	        && isMirror(t1.right, t2.left)
 	        && isMirror(t1.left, t2.right);
+	}
+
+### 二叉树的层序遍历
+	class Solution {
+	    public List<List<Integer>> levelOrder(TreeNode root) {
+	        if(root == null) return new ArrayList<>();
+	        List<TreeNode> cur = new ArrayList<>(), nex = new ArrayList<>();
+	        cur.add(root);
+	        List<List<Integer>> res = new ArrayList<>();
+	        List<Integer> tmp = new ArrayList<>();
+	        while(cur.size() > 0){
+	            for(TreeNode r : cur) {
+	                tmp.add(r.val);
+	                if(r.left != null) nex.add(r.left);
+	                if(r.right != null) nex.add(r.right);
+	            }
+	            res.add(tmp);
+	            cur = nex;
+	            tmp = new ArrayList<>();
+	            nex = new ArrayList<>();
+	        }
+	        return res;
+	    }
+	}
+
+### Z型输出二叉树
+	class Solution {
+	    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        helper(res, root, 0);
+	        return res;
+
+	    }
+
+	    private void helper(List<List<Integer>> res, TreeNode root, int depth) {
+	        if (root == null) return;
+	        if (res.size() == depth) res.add(new LinkedList<>());
+	        if (depth % 2 == 0) res.get(depth).add(root.val);
+	        else res.get(depth).add(0, root.val);
+	        helper(res, root.left, depth + 1);
+	        helper(res, root.right, depth + 1);
+	    }
 	}
 
