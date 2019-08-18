@@ -2957,3 +2957,129 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 	        return index + 1;
 	    }
 	}
+
+### 矩阵旋转90度
+	class Solution {
+	    public void rotate(int[][] matrix) {
+	        if(matrix.length == 0 || matrix.length != matrix[0].length) {
+	            return;
+	        }
+	        int nums = matrix.length;
+	        int times = 0;
+	        while(times <= (nums >> 1)){
+	            int len = nums - (times << 1);
+	            for(int i = 0; i < len - 1; ++i){
+	                int temp = matrix[times][times + i];
+	                matrix[times][times + i] = matrix[times + len - i - 1][times];
+	                matrix[times + len - i - 1][times] = matrix[times + len - 1][times + len - i - 1];
+	                matrix[times + len - 1][times + len - i - 1] = matrix[times + i][times + len - 1];
+	                matrix[times + i][times + len - 1] = temp;
+	            }
+	            ++times;
+	        }       
+	    }
+	}
+
+### 幂次方
+	class Solution {
+	    public double myPow(double x, int n) {
+	        long N = n;
+	        if (N < 0) {
+	            x = 1 / x;
+	            N = -N;
+	        }
+	        double ans = 1;
+	        double current_product = x;
+	        for (long i = N; i > 0; i /= 2) {
+	            if ((i % 2) == 1) {
+	                ans = ans * current_product;
+	            }
+	            current_product = current_product * current_product;
+	        }
+	        return ans;
+	    }
+	}
+
+### 最大子序列的和
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int ans = nums[0];
+        int sum = 0;
+        for(int num: nums) {
+            if(sum > 0) {
+                sum += num;
+            } else {
+                sum = num;
+            }
+            ans = Math.max(ans, sum);
+        }
+        return ans;
+    }
+}
+
+### 矩阵顺时针输出
+	class Solution {
+		public List<Integer> spiralOrder(int[][] matrix) {
+		        if (matrix.length==0) return new ArrayList<>();
+		        if (matrix[0].length==0) return new ArrayList<>();
+		        int rowStart = 0;
+		        int rowEnd = matrix.length-1;
+		        int colStart = 0;
+		        int colEnd = matrix[0].length-1;
+		        List<Integer> list = new ArrayList<>();
+		        int count =0;
+		        int total = matrix.length*matrix[0].length;
+		        boolean flag = false;
+		        while (count < total){
+		            for (int i=colStart;i<=colEnd;i++){
+		                list.add(matrix[rowStart][i]);
+		                count++;
+
+		            }
+		            rowStart++;
+		            if (count>=total) break;
+		            for (int i=rowStart;i<=rowEnd;i++){
+		                list.add(matrix[i][colEnd]);
+		                count++;
+		                flag = true;
+		            }
+		            colEnd--;
+		            if (count>=total) break;
+		            for (int i=colEnd;i>=colStart;i--){
+		                list.add(matrix[rowEnd][i]);
+		                count++;
+
+		            }
+		            rowEnd--;
+		            if (count>=total) break;
+
+		            for (int i = rowEnd;i>=rowStart;i--){
+		                list.add(matrix[i][colStart]);
+		                count++;
+
+		            }
+		            colStart++;
+		            if (count>=total) break;
+
+		        }
+		        return list;
+		    }
+	}
+
+### 跳跃游戏
+	class Solution {
+	    public boolean canJump(int[] nums) {
+	        
+	        if (nums == null) {
+	            return false;
+	        }
+	        int lastPosition = nums.length - 1;
+	        for (int i = nums.length - 1; i >= 0; i--) {
+	            // 逐步向前递推
+	            if (nums[i] + i >= lastPosition) {
+	                lastPosition = i;
+	            }
+	        }
+	        return lastPosition == 0;
+	    }
+	}
