@@ -3001,21 +3001,21 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 	}
 
 ### 最大子序列的和
-class Solution {
-    public int maxSubArray(int[] nums) {
-        int ans = nums[0];
-        int sum = 0;
-        for(int num: nums) {
-            if(sum > 0) {
-                sum += num;
-            } else {
-                sum = num;
-            }
-            ans = Math.max(ans, sum);
-        }
-        return ans;
-    }
-}
+	class Solution {
+	    public int maxSubArray(int[] nums) {
+	        int ans = nums[0];
+	        int sum = 0;
+	        for(int num: nums) {
+	            if(sum > 0) {
+	                sum += num;
+	            } else {
+	                sum = num;
+	            }
+	            ans = Math.max(ans, sum);
+	        }
+	        return ans;
+	    }
+	}
 
 ### 矩阵顺时针输出
 	class Solution {
@@ -3110,5 +3110,162 @@ class Solution {
 
 	    return new_head;
 	  }
+	}
+
+### 不同路径（矩阵从左上角到右下角的路径数）
+	class Solution {
+	    public int uniquePaths(int m, int n) {
+	        int[] cur = new int[n];
+	        Arrays.fill(cur,1);
+	        for (int i = 1; i < m;i++){
+	            for (int j = 1; j < n; j++){
+	                cur[j] += cur[j-1] ;
+	            }
+	        }
+	        return cur[n-1];
+	    }
+	}
+
+### 最小路径（矩阵从左上角到右下角的最小路径）
+	public class Solution {
+	    public int minPathSum(int[][] grid) {
+	        for (int i = grid.length - 1; i >= 0; i--) {
+	            for (int j = grid[0].length - 1; j >= 0; j--) {
+	                if(i == grid.length - 1 && j != grid[0].length - 1)
+	                    grid[i][j] = grid[i][j] +  grid[i][j + 1];
+	                else if(j == grid[0].length - 1 && i != grid.length - 1)
+	                    grid[i][j] = grid[i][j] + grid[i + 1][j];
+	                else if(j != grid[0].length - 1 && i != grid.length - 1)
+	                    grid[i][j] = grid[i][j] + Math.min(grid[i + 1][j],grid[i][j + 1]);
+	            }
+	        }
+	        return grid[0][0];
+	    }
+	}
+
+### 加一（给定一个由整数组成的非空数组所表示的非负整数，在该数的基础上加一。）
+	class Solution {
+	    public int[] plusOne(int[] digits) {
+	        for (int i = digits.length - 1; i >= 0; i--) {
+	            digits[i]++;
+	            digits[i] = digits[i] % 10;
+	            if (digits[i] != 0) return digits;
+	        }
+	        digits = new int[digits.length + 1];
+	        digits[0] = 1;
+	        return digits;
+	    }
+	}
+
+### 搜索二维矩阵（矩阵从左到右升序，每行第一个数大于前一行的最后一个数）
+	class Solution {
+	  public boolean searchMatrix(int[][] matrix, int target) {
+	    int m = matrix.length;
+	    if (m == 0) return false;
+	    int n = matrix[0].length;
+
+	    // 二分查找
+	    int left = 0, right = m * n - 1;
+	    int pivotIdx, pivotElement;
+	    while (left <= right) {
+	      pivotIdx = (left + right) / 2;
+	      pivotElement = matrix[pivotIdx / n][pivotIdx % n];
+	      if (target == pivotElement) return true;
+	      else {
+	        if (target < pivotElement) right = pivotIdx - 1;
+	        else left = pivotIdx + 1;
+	      }
+	    }
+	    return false;
+	  }
+	}
+
+### 子集
+	class Solution {
+	    public List<List<Integer>> subsets(int[] nums) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        backtrack(0, nums, res, new ArrayList<Integer>());
+	        return res;
+
+	    }
+
+	    private void backtrack(int i, int[] nums, List<List<Integer>> res, ArrayList<Integer> tmp) {
+	        res.add(new ArrayList<>(tmp));
+	        for (int j = i; j < nums.length; j++) {
+	            tmp.add(nums[j]);
+	            backtrack(j + 1, nums, res, tmp);
+	            tmp.remove(tmp.size() - 1);
+	        }
+	    }
+	}
+
+### 删除链表中重复的元素（只出现一次）
+	public ListNode deleteDuplicates(ListNode head) {
+	    ListNode current = head;
+	    while (current != null && current.next != null) {
+	        if (current.next.val == current.val) {
+	            current.next = current.next.next;
+	        } else {
+	            current = current.next;
+	        }
+	    }
+	    return head;
+	}
+
+
+### 删除链表中重复的元素（一次都不出现）
+	class Solution {
+	    public ListNode deleteDuplicates(ListNode head) {
+	        if (head == null)  return head;
+	        if (head.next != null && head.val == head.next.val) {
+	            while (head.next != null && head.val == head.next.val) {
+	                head = head.next;
+	            }
+	            return deleteDuplicates(head.next);
+	        }
+	        else head.next = deleteDuplicates(head.next);
+	        return head;    
+	    }
+	}
+
+### 合并有序数组
+	class Solution {
+	  public void merge(int[] nums1, int m, int[] nums2, int n) {
+	    // Make a copy of nums1.
+	    int [] nums1_copy = new int[m];
+	    System.arraycopy(nums1, 0, nums1_copy, 0, m);
+
+	    // Two get pointers for nums1_copy and nums2.
+	    int p1 = 0;
+	    int p2 = 0;
+
+	    // Set pointer for nums1
+	    int p = 0;
+
+	    // Compare elements from nums1_copy and nums2
+	    // and add the smallest one into nums1.
+	    while ((p1 < m) && (p2 < n))
+	      nums1[p++] = (nums1_copy[p1] < nums2[p2]) ? nums1_copy[p1++] : nums2[p2++];
+
+	    // if there are still elements to add
+	    if (p1 < m)
+	      System.arraycopy(nums1_copy, p1, nums1, p1 + p2, m + n - p1 - p2);
+	    if (p2 < n)
+	      System.arraycopy(nums2, p2, nums1, p1 + p2, m + n - p1 - p2);
+	  }
+	}
+
+
+### 镜像对称二叉树
+	public boolean isSymmetric(TreeNode root) {
+	    return isMirror(root, root);
+	}
+
+	public boolean isMirror(TreeNode t1, TreeNode t2) {
+	    if (t1 == null && t2 == null) return true;
+	    if (t1 == null || t2 == null) return false;
+	    return (t1.val == t2.val)
+	        && isMirror(t1.right, t2.left)
+	        && isMirror(t1.left, t2.right);
 	}
 
