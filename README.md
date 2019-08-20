@@ -1733,6 +1733,30 @@ P (分区容错性):当出现网络分区后，系统能够继续工作。打个
 
 水平拆分能够 支持非常大的数据量存储，应用端改造也少，但 分片事务难以解决 ，跨节点Join性能较差，逻辑复杂。
 
+## sql语句执行顺序（select为例）
+1、 FROM：对FROM子句中的前两个表执行笛卡尔积(交叉联接)，生成虚拟表VT1。
+
+2、 ON：对VT1应用ON筛选器，只有那些使为真才被插入到TV2。
+
+3、 OUTER (JOIN):如果指定了OUTER JOIN(相对于CROSS JOIN或INNER JOIN)，保留表中未找到匹配的行将作为外部行添加到VT2，生成TV3。如果FROM子句包含两个以上的表，则对上一个联接生成的结果表和下一个表重复执行步骤1到步骤3，直到处理完所有的表位置。
+
+4、 WHERE：对TV3应用WHERE筛选器，只有使为true的行才插入TV4。
+
+5、 GROUP BY：按GROUP BY子句中的列列表对TV4中的行进行分组，生成TV5。
+
+6、 CUTE|ROLLUP：把超组插入VT5，生成VT6。
+
+7、 HAVING：对VT6应用HAVING筛选器，只有使为true的组插入到VT7。
+
+8、 SELECT：处理SELECT列表，产生VT8。
+
+9、 DISTINCT：将重复的行从VT8中删除，产品VT9。
+
+10、ORDER BY：将VT9中的行按ORDER BY子句中的列列表顺序，生成一个游标(VC10)。
+
+11、TOP：从VC10的开始处选择指定数量或比例的行，生成表TV11，并返回给调用者。
+
+
 # redis 
 ## memcached 的区别
 redis支持更丰富的数据类型（支持更复杂的应用场景）：Redis不仅仅支持简单的k/v类型的数据，同时还提供list，set，zset，hash等数据结构的存储。memcache支持简单的数据类型，String。
