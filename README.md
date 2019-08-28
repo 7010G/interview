@@ -3609,3 +3609,38 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 	    }
 	}
 
+### 路径之和
+	class Solution {
+	  public boolean hasPathSum(TreeNode root, int sum) {
+	    if (root == null)
+	      return false;
+
+	    sum -= root.val;
+	    if ((root.left == null) && (root.right == null))
+	      return (sum == 0);
+	    return hasPathSum(root.left, sum) || hasPathSum(root.right, sum);
+	  }
+	}
+
+### LRU缓存机制
+	class LRUCache extends LinkedHashMap<Integer, Integer>{
+	    private int capacity;
+	    
+	    public LRUCache(int capacity) {
+	        super(capacity, 0.75F, true);
+	        this.capacity = capacity;
+	    }
+
+	    public int get(int key) {
+	        return super.getOrDefault(key, -1);
+	    }
+
+	    public void put(int key, int value) {
+	        super.put(key, value);
+	    }
+
+	    @Override
+	    protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
+	        return size() > capacity; 
+	    }
+	}
