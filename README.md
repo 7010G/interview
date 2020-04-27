@@ -3142,23 +3142,23 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 	}
 
 ### 删除链表倒数第N个节点
-	class Solution {
-	    public ListNode removeNthFromEnd(ListNode head, int n) {
-	        ListNode pre = new ListNode(0);
-	        pre.next = head;
-	        ListNode start = pre, end = pre;
-	        while(n != 0) {
-	            start = start.next;
-	            n--;
+	class Solution{
+	    public ListNode removeNthFromEnd(ListNode head){
+	        ListNode A = new ListNode(-1);
+	        A.next = head;
+	        ListNode p = A;
+	        ListNode q = A;
+	        for(int i = 1; i <= n+1; i++){
+	            p = p.next;
 	        }
-	        while(start.next != null) {
-	            start = start.next;
-	            end = end.next;
+	        while (p != null){
+	            p = p.next;
+	            q = q.next;
 	        }
-	        end.next = end.next.next;
-	        return pre.next;
-		    }
-		}
+	        q.next = q.next.next;
+	        return A.next;
+	    }
+	}   
 
 ### 有效的括号
 	class Solution {
