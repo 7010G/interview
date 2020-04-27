@@ -15,7 +15,7 @@ JRE 是 Java运行时环境。它是运行已编译 Java 程序所需的所有�
 
 	类型              存储需求     bit数    取值范围      备注
 
-	int               4字节      4*8 
+	int               4字节        4*8 
 
 	short             2字节        2*8    －32768～32767
 
@@ -29,7 +29,7 @@ JRE 是 Java运行时环境。它是运行已编译 Java 程序所需的所有�
 
 	float              4字节      4*8                  float类型的数值有一个后缀F(例如：3.14F)
 
-	double          8字节         8*8                  没有后缀F的浮点数值(如3.14)默认为double类型
+	double             8字节      8*8                  没有后缀F的浮点数值(如3.14)默认为double类型
 
 3.char类型
 
@@ -195,7 +195,7 @@ Java程序在执行过程中，类，对象以及它们成员加载、初始化�
 JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。
 
 ## 优缺点
-优点： 运行期类型的判断，动态加载类，提高代码灵活度。
+优点： 运7行期类型的判断，动态加载类，提高代码灵活度。
 缺点： 性能瓶颈：反射相当于一系列解释操作，通知 JVM 要做的事情，性能比直接的java代码要慢很多。
 
 ## 三种方式
@@ -1124,7 +1124,7 @@ Java 堆是垃圾收集器管理的主要区域，因此也被称作GC 堆（Gar
 
 JDK1.7 及之后版本的 JVM 已经将运行时常量池从方法区中移了出来，在 Java 堆（Heap）中开辟了一块区域存放运行时常量池。
 
-## 内存溢出
+## 内存溢出（outofmemory）
 内存溢出是指应用系统中存在无法回收的内存或使用的内存过多，最终使得程序运行要用到的内存大于虚拟机能提供的最大内存。
 
 引起内存溢出的原因有很多种，常见的有以下几种：
@@ -2261,8 +2261,8 @@ Message发送到某个Exchange；
 根据路由规则，Exchange将消息发送到某一个或几个Message Queue；
 由监听相应Message Queue的消费者处理消息。
 
-## Confirm确认消息实现
-消息的确认，是指生产者投递消息后，如果Broker收到消息，则会给生产者一个应答。生产者收到应答，来确认消息是否正常的发送到Broker。
+## Confirm消息确认实现
+消息确认，是指生产者投递消息后，如果Broker收到消息，则会给生产者一个应答。生产者收到应答，来确认消息是否正常的发送到Broker。
 
 如何实现Confirm确认消息
 在channel上开启确认模式：channel.confirmSelect()
@@ -3144,24 +3144,21 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 ### 删除链表倒数第N个节点
 	class Solution {
 	    public ListNode removeNthFromEnd(ListNode head, int n) {
-	        ListNode right = head;
-	        ListNode left = head;
-	        for (int i = 0; i < n; i++) {
-	            right = right.next;
+	        ListNode pre = new ListNode(0);
+	        pre.next = head;
+	        ListNode start = pre, end = pre;
+	        while(n != 0) {
+	            start = start.next;
+	            n--;
 	        }
-	        
-	        if (right == null) {
-	            head = head.next;
-	            return head;
+	        while(start.next != null) {
+	            start = start.next;
+	            end = end.next;
 	        }
-	        while (right.next != null) {
-	            left = left.next;
-	            right = right.next;
-	        }
-	        left.next = left.next.next;
-	        return head;
-	    }
-	}
+	        end.next = end.next.next;
+	        return pre.next;
+		    }
+		}
 
 ### 有效的括号
 	class Solution {
