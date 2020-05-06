@@ -864,6 +864,21 @@ Wait 通常被用于线程间交互/通信，sleep 通常被用于暂停执行�
 
 wait() 方法被调用后，线程不会自动苏醒，需要别的线程调用同一个对象上的 notify() 或者 notifyAll() 方法。sleep() 方法执行完成后，线程会自动苏醒。或者可以使用wait(long timeout)超时后线程会自动苏醒。
 
+# wait()实现原理
+1、将当前线程封装成ObjectWaiter对象node
+
+2、通过ObjectMonitor::AddWaiter方法将node添加到_WaitSet列表中
+
+3、通过ObjectMonitor::exit方法释放当前的ObjectMonitor对象，这样其它竞争线程就可以获取该ObjectMonitor对象
+
+4、最终底层的park方法会挂起线程
+
+# notify（）实现
+1、如果当前_WaitSet为空，即没有正在等待的线程，则直接返回；
+2、通过ObjectMonitor::DequeueWaiter方法，获取_WaitSet列表中的第一个ObjectWaiter节点，实现也很简单。在jdk的notify方法注释是随机唤醒一个线程，其实是第一个ObjectWaiter节点。
+3、根据不同的策略，将取出来的ObjectWaiter节点，加入到_EntryList或则通过Atomic::cmpxchg_ptr指令进行自旋操作cxq
+
+
 # 为什么我们调用 start() 方法时会执行 run() 方法，为什么我们不能直接调用 run() 方法？
 new 一个 Thread，线程进入了新建状态;调用 start() 方法，会启动一个线程并使线程进入了就绪状态，当分配到时间片后就可以开始运行了。 start() 会执行线程的相应准备工作，然后自动执行 run() 方法的内容，这是真正的多线程工作。 而直接执行 run() 方法，会把 run 方法当成一个 main 线程下的普通方法去执行，并不会在某个线程中执行它，所以这并不是多线程工作。
 
