@@ -566,9 +566,148 @@ HashSet 底层就是基于 HashMap 实现的。（HashSet 的源码非常非常�
 # HashMap的底层实现
 JDK1.8 之前 HashMap 底层是 数组和链表 结合在一起使用也就是 链表散列。HashMap 通过 key 的 hashCode 经过扰动函数处理过后得到 hash 值，然后通过 (n - 1) & hash 判断当前元素存放的位置（这里的 n 指的是数组的长度），如果当前位置存在元素的话，就判断该元素与要存入的元素的 hash 值以及 key 是否相同，如果相同的话，直接覆盖，不相同就通过拉链法（https://blog.csdn.net/a544879146/article/details/71122725 ）解决冲突。
 
-JDK1.8 以后的 HashMap 在解决哈希冲突时有了较大的变化，当链表长度大于阈值（默认为8）时，将链表转化为红黑树，以减少搜索时间。红黑树就是为了解决二叉查找树的缺陷，因为二叉查找树在某些情况下会退化成一个线性结构。Hashtable 没有这样的机制。
+JDK1.8 以后的 HashMap 在解决哈希冲突时有了较大的变化，当链表长度大于阈值（默认为8）时，将链表转化为红黑树，以减少搜索时间。红黑树就是为了解决二叉查找树的缺陷，因为二叉查找树在某些情况下会退化成一个线性结构。
+
+## 为什么用数组+链表？
+数组是用来确定桶的位置，利用元素的key的hash值对数组长度取模得到.
+
+## hash冲突你还知道哪些解决办法？
+比较出名的有四种(1)开放定址法(2)链地址法(3)再哈希法(4)公共溢出区域法
+
+## 用LinkedList代替数组结构可以么?可以的,为什么HashMap不用LinkedList,而选用数组
+因为用数组效率最高！
+
+在HashMap中，定位桶的位置是利用元素的key的哈希值对数组长度取模得到。此时，我们已得到桶的位置。显然数组的查找效率比LinkedList大。因为采用基本数组结构，扩容机制可以自己定义，HashMap中数组扩容刚好是2的次幂，在做取模运算的效率高。而ArrayList的扩容机制是1.5倍扩容
+
+## HashMap在什么条件下扩容?
+如果bucket满了(超过load factor*current capacity)，就要resize。
+load factor为0.75，为了最大程度避免哈希冲突
+
+current capacity为当前数组大小。
+
+## hashmap中put元素的过程是什么样么?
+对key的hashCode()做hash运算，计算index;如果没碰撞直接放到bucket里；如果碰撞了，以链表的形式存在buckets后；如果碰撞导致链表过长(大于等于TREEIFY_THRESHOLD)，就把链表转换成红黑树(JDK1.8中的改动)；如果节点已经存在就替换old value(保证key的唯一性)如果bucket满了(超过load factor*current capacity)，就要resize。
+
+
+## hashmap中get元素的过程是什么样么?
+对key的hashCode()做hash运算，计算index;如果在bucket里的第一个节点里直接命中，则直接返回；如果有冲突，则通过key.equals(k)去查找对应的Entry;若为树，则在树中通过key.equals(k)查找，O(logn)；若为链表，则在链表中通过key.equals(k)查找，O(n)。
+
+## 为什么在解决hash冲突的时候，不直接用红黑树?而选择先用链表，再转红黑树?
+因为红黑树需要进行左旋，右旋，变色这些操作来保持平衡，而单链表不需要。当元素小于8个当时候，此时做查询操作，链表结构已经能保证查询性能。当元素大于8个的时候，此时需要红黑树来加快查询速度，但是新增节点的效率变慢了。因此，如果一开始就用红黑树结构，元素太少，新增效率又比较慢，无疑这是浪费性能的。
+
+## 当链表转为红黑树后，什么时候退化为链表?
+为6的时候退转为链表。中间有个差值7可以防止链表和树之间频繁的转换。假设一下，如果设计成链表个数超过8则链表转换成树结构，链表个数小于8则树结构转换成链表，如果一个HashMap不停的插入、删除元素，链表个数在8左右徘徊，就会频繁的发生树转链表、链表转树，效率会很低。
+
+## HashMap在并发编程环境下有什么问题啊?
+(1)多线程扩容，引起的死循环问题
+(2)多线程put的时候可能导致元素丢失
+(3)put非null元素后get出来的却是null
+
+并发环境下推荐使用ConcurrentHashmap
+
+## 健可以为Null值么?
+必须可以，key为null的时候，hash算法最后的值以0来计算，也就是放在数组的第一个位置。
+
+	static final int hash(Object key) {
+		int h;
+		return (key == null) ? 0:(h=key.hashcode())^(h>>>16);
+	}
+
+## 一般用什么作为HashMap的key?
+一般用Integer、String这种不可变类当HashMap当key，而且String最为常用。
+(1)因为字符串是不可变的，所以在它创建的时候hashcode就被缓存了，不需要重新计算。这就使得字符串很适合作为Map中的键，字符串的处理速度要快过其它的键对象。这就是HashMap中的键往往都使用字符串。
+
+(2)因为获取对象的时候要用到equals()和hashCode()方法，那么键对象正确的重写这两个方法是非常重要的,这些类已经很规范的覆写了hashCode()以及equals()方法。
+
+## 可变类当HashMap的key有什么问题?
+hashcode可能发生改变，导致put进去的值，无法get出
+
+## 如果让你实现一个自定义的class作为HashMap的key该如何实现？
+此题考察两个知识点重写hashcode和equals方法注意什么:
+1)如何设计一个不变类针对问题一，记住下面四个原则即可
+(1)两个对象相等，hashcode一定相等
+(2)两个对象不等，hashcode不一定不等
+(3)hashcode相等，两个对象不一定相等
+(4)hashcode不等，两个对象一定不等
+2)针对问题二，记住如何写一个不可变类
+(1)类添加final修饰符，保证类不被继承。如果类可以被继承会破坏类的不可变性机制，只要继承类覆盖父类的方法并且继承类可以改变成员变量值，那么一旦子类以父类的形式出现时，不能保证当前类是否可变。
+(2)保证所有成员变量必须私有，并且加上final修饰通过这种方式保证成员变量不可改变。但只做到这一步还不够，因为如果是对象成员变量有可能再外部改变其值。所以第4点弥补这个不足。
+(3)不提供改变成员变量的方法，包括setter避免通过其他接口改变成员变量的值，破坏不可变特性。
+(4)通过构造器初始化所有成员，进行深拷贝(deep copy),如果构造器传入的对象直接赋值给成员变量，还是可以通过对传入对象的修改进而导致改变内部变量的值。
+
+public final class MyImmutableDemo {  
+    private final int[] myArray;  
+    public MyImmutableDemo(int[] array) {  
+        this.myArray = array.clone();   
+    }   
+}
+
+(5)在getter方法中，不要直接返回对象本身，而是克隆对象，并返回对象的拷贝这种做法也是防止对象外泄，防止通过getter获得内部可变成员对象后对成员变量直接操作，导致成员变量发生改变。
+
 
 ## 实现源码
+
+	/**
+	 * 默认的初始容量为16
+	 */
+	static final int DEFAULT_INITIAL_CAPACITY = 1 << 4;
+
+	/**
+	 * 最大的容量为2的30次方
+	 */
+	static final int MAXIMUM_CAPACITY = 1 << 30;
+
+	/**
+	 * 默认的装载因子
+	 */
+	static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+	/**
+	 * 当一个桶中的元素个数大于等于8时进行树化
+	 */
+	static final int TREEIFY_THRESHOLD = 8;
+
+	/**
+	 * 当一个桶中的元素个数小于等于6时把树转化为链表
+	 */
+	static final int UNTREEIFY_THRESHOLD = 6;
+
+	/**
+	 * 当桶的个数达到64的时候才进行树化
+	 */
+	static final int MIN_TREEIFY_CAPACITY = 64;
+
+	/**
+	 * 数组，又叫作桶（bucket）
+	 */
+	transient Node<K,V>[] table;
+
+	/**
+	 * 作为entrySet()的缓存
+	 */
+	transient Set<Map.Entry<K,V>> entrySet;
+
+	/**
+	 * 元素的数量
+	 */
+	transient int size;
+
+	/**
+	 * 修改次数，用于在迭代的时候执行快速失败策略
+	 */
+	transient int modCount;
+
+	/**
+	 * 当桶的使用数量达到多少时进行扩容，threshold = capacity * loadFactor
+	 */
+	int threshold;
+
+	/**
+	 * 装载因子
+	 */
+	final float loadFactor;
+
+
  	public HashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
             throw new IllegalArgumentException("Illegal initial capacity: " +
