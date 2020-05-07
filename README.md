@@ -3964,6 +3964,10 @@ etcd读写性能：每个实例每秒支持一千次写操作。这个性能还�
 
 ### 寻找第k大的数
 #### 排序解决法（效率值为N*lgK）
+
+快排的思想为，从数组中取任意一个值key，将大于key的值放在key右边，小于key的值放在key左边。key的左边和右边则都是有序的了，然后递归key左边的子数组和key右边的子数组，直到每个子数组长度为1，此时，整个数组均有序了，快排中的partition算法，返回key在数组中的位置，如果key的位置正好等于k-1，那么问题则得到解决，如果key的位置不等于k-1，可使用递归查找对应子数组。直到key的位置等于k-1，则找对问题的解。
+
+
 	public static int findK(int[] array, int left, int right, int k) {
 	    int i = partition(array, left, right);
 	    if (i == k - 1) {
