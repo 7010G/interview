@@ -2484,6 +2484,29 @@ Producer 发送消息到 broker 时，会根据 Paritition 机制选择将其存
 #### Consumer Group
 同一 Topic 的一条消息只能被同一个 Consumer Group 内的一个 Consumer 消费，但多个 Consumer Group 可同时消费这一消息。这是 Kafka 用来实现一个 Topic 消息的广播（发给所有的 Consumer）和单播（发给某一个 Consumer）的手段。一个 Topic 可以对应多个 Consumer Group。如果需要实现广播，只要每个 Consumer 有一个独立的 Group 就可以了。要实现单播只要所有的 Consumer 在同一个 Group 里。用 Consumer Group 还可以将 Consumer 进行自由的分组而不需要多次发送消息到不同的 Topic。
 
+#### ack
+Kafka producer有三种ack机制  初始化producer时在config中进行配置
+
+0 
+
+意味着producer不等待broker同步完成的确认，继续发送下一条(批)信息
+
+提供了最低的延迟。但是最弱的持久性，当服务器发生故障时，就很可能发生数据丢失。例如leader已经死亡，producer不知情，还会继续发送消息broker接收不到数据就会数据丢失
+
+1
+
+意味着producer要等待leader成功收到数据并得到确认，才发送下一条message。此选项提供了较好的持久性较低的延迟性。
+
+Partition的Leader死亡，follwer尚未复制，数据就会丢失
+
+ 
+
+-1
+
+意味着producer得到follwer确认，才发送下一条数据
+
+持久性最好，延时性最差
+
 # MRC
 MRC是跨机房消息同步组件(Message Replication Center)，用于跨机房间的以队列为单位的消息同步，支持单向与双向同步，以满足业务方在单个机房消费多机房全量消息的需求。
 
