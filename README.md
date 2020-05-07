@@ -1873,6 +1873,8 @@ set 对外提供的功能与list类似是一个列表的功能，特殊之处在
 
 举例： 在直播系统中，实时排行信息包含直播间在线用户列表，各种礼物排行榜，弹幕消息（可以理解为按消息维度的消息排行榜）等信息，适合使用 Redis 中的 Sorted Set 结构进行存储。
 
+### 6.Zset(https://www.daxiaju.club/2019/06/28/Redis-Zset-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/)
+
 ## redis 持久化机制(怎么保证 redis 挂掉之后再重启数据可以进行恢复)
 Redis不同于Memcached的很重一点就是，Redis支持持久化，而且支持两种不同的持久化操作。Redis的一种持久化方式叫快照（snapshotting，RDB），另一种方式是只追加文件（append-only file,AOF）。
 
