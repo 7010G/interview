@@ -566,6 +566,8 @@ HashSet 底层就是基于 HashMap 实现的。（HashSet 的源码非常非常�
 # HashMap的底层实现
 JDK1.8 之前 HashMap 底层是 数组和链表 结合在一起使用也就是 链表散列。HashMap 通过 key 的 hashCode 经过扰动函数处理过后得到 hash 值，然后通过 (n - 1) & hash 判断当前元素存放的位置（这里的 n 指的是数组的长度），如果当前位置存在元素的话，就判断该元素与要存入的元素的 hash 值以及 key 是否相同，如果相同的话，直接覆盖，不相同就通过拉链法（https://blog.csdn.net/a544879146/article/details/71122725 ）解决冲突。
 
+JDK1.8 以后的 HashMap 在解决哈希冲突时有了较大的变化，当链表长度大于阈值（默认为8）时，将链表转化为红黑树，以减少搜索时间。红黑树就是为了解决二叉查找树的缺陷，因为二叉查找树在某些情况下会退化成一个线性结构。Hashtable 没有这样的机制。
+
 ## 实现源码
  	public HashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0)
