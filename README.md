@@ -645,12 +645,12 @@ hashcode可能发生改变，导致put进去的值，无法get出
 
 (4)通过构造器初始化所有成员，进行深拷贝(deep copy),如果构造器传入的对象直接赋值给成员变量，还是可以通过对传入对象的修改进而导致改变内部变量的值。
 
-public final class MyImmutableDemo {  
-    private final int[] myArray;  
-    public MyImmutableDemo(int[] array) {  
-        this.myArray = array.clone();   
-    }   
-}
+	public final class MyImmutableDemo {  
+	    private final int[] myArray;  
+	    public MyImmutableDemo(int[] array) {  
+	        this.myArray = array.clone();   
+	    }   
+	}
 
 (5)在getter方法中，不要直接返回对象本身，而是克隆对象，并返回对象的拷贝这种做法也是防止对象外泄，防止通过getter获得内部可变成员对象后对成员变量直接操作，导致成员变量发生改变。
 
