@@ -1839,7 +1839,7 @@ Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，
 集群模式：memcached没有原生的集群模式，需要依靠客户端来实现往集群中分片写入数据；但是 redis 目前是原生支持 cluster 模式的.
 Memcached是多线程，非阻塞IO复用的网络模型；Redis使用单线程的多路 IO 复用模型。
 
-## 常见数据结构以及使用场景分析
+## 常见数据结构以及使用场景分析（实现：https://www.cnblogs.com/binyue/p/5342281.html）
 ### 1.String
 常用命令: set,get,decr,incr,mget 等。
 
@@ -1890,6 +1890,8 @@ Redis可以通过创建快照来获得存储在内存里面的数据在某个时
 
 appendonly yes
 开启AOF持久化后每执行一条会更改Redis中的数据的命令，Redis就会将该命令写入硬盘中的AOF文件。
+
+### 持久化实现（https://juejin.im/post/5b70dfcf518825610f1f5c16）
 
 ## redis 事务
 Redis 通过 MULTI、EXEC、WATCH 等命令来实现事务(transaction)功能。事务提供了一种将多个命令请求打包，然后一次性、按顺序地执行多个命令的机制，并且在事务执行期间，服务器不会中断事务而改去执行其他客户端的命令请求，它会将事务中的所有命令都执行完毕，然后才去处理其他客户端的命令请求。
