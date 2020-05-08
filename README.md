@@ -468,6 +468,61 @@ AIO (Asynchronous I/O): AIO 也就是 NIO 2。在 Java 7 中引入了 NIO 的改
 
 Reactor管理器并不是应用程序负责等待事件、分离事件和调度事件。Reactor并没有被具体的事件处理器调度，而是管理器调度具体的事件处理器，由事件处理器对发生的事件作出处理，这就是Hollywood原则。应用程序要做的仅仅是实现一个具体的事件处理器，然后把它注册到Reactor管理器中。接下来的工作由管理器来完成：如果有相应的事件发生，Reactor会主动调用具体的事件处理器，由事件处理器对发生的事件作出处理。
 
+# Java设计模式（ https://www.cnblogs.com/pony1223/p/7608955.html ）
+关键点：
+
+单例模式：某个类只能有一个实例，提供一个全局的访问点。
+
+简单工厂：一个工厂类根据传入的参量决定创建出那一种产品类的实例。
+
+工厂方法：定义一个创建对象的接口，让子类决定实例化那个类。
+
+抽象工厂：创建相关或依赖对象的家族，而无需明确指定具体类。
+
+建造者模式：封装一个复杂对象的构建过程，并可以按步骤构造。
+
+原型模式：通过复制现有的实例来创建新的实例。
+
+ 
+
+适配器模式：将一个类的方法接口转换成客户希望的另外一个接口。
+
+组合模式：将对象组合成树形结构以表示“”部分-整体“”的层次结构。
+
+装饰模式：动态的给对象添加新的功能。
+
+代理模式：为其他对象提供一个代理以便控制这个对象的访问。
+
+亨元（蝇量）模式：通过共享技术来有效的支持大量细粒度的对象。
+
+外观模式：对外提供一个统一的方法，来访问子系统中的一群接口。
+
+桥接模式：将抽象部分和它的实现部分分离，使它们都可以独立的变化。
+
+ 
+
+模板模式：定义一个算法结构，而将一些步骤延迟到子类实现。
+
+解释器模式：给定一个语言，定义它的文法的一种表示，并定义一个解释器。
+
+策略模式：定义一系列算法，把他们封装起来，并且使它们可以相互替换。
+
+状态模式：允许一个对象在其对象内部状态改变时改变它的行为。
+
+观察者模式：对象间的一对多的依赖关系。
+
+备忘录模式：在不破坏封装的前提下，保持对象的内部状态。
+
+中介者模式：用一个中介对象来封装一系列的对象交互。
+
+命令模式：将命令请求封装为一个对象，使得可以用不同的请求来进行参数化。
+
+访问者模式：在不改变数据结构的前提下，增加作用于一组对象元素的新功能。
+
+责任链模式：将请求的发送者和接收者解耦，使的多个对象都有处理这个请求的机会。
+
+迭代器模式：一种遍历访问聚合对象中各个元素的方法，不暴露该对象的内部结构。
+
 
 # Java 集合（https://www.jianshu.com/p/50e19038e361
 
@@ -952,6 +1007,111 @@ throw 是用来抛出任意异常的，你可以抛出任意 Throwable，包括�
 
 # java锁机制（https://tech.meituan.com/2018/11/15/java-lock.html ）
 
+# CountDownLatch、CyclicBarrier和Semaphore（ https://www.cnblogs.com/dolphin0520/p/3920397.html ）
+## CountDownLatch
+	CountDownLatch也叫闭锁，在JDK1.5被引入，允许一个或多个线程等待其他线程完成操作后再执行。
+
+	CountDownLatch内部会维护一个初始值为线程数量的计数器，主线程执行await方法，如果计数器大于0，则阻塞等待。当一个线程完成任务后，计数器值减1。当计数器为0时，表示所有的线程已经完成任务，等待的主线程被唤醒继续执行。
+
+### 实现原理
+	CountDownLatch实现主要基于java同步器AQS，其内部维护一个AQS子类，并重写了相关方法。
+
+		private static final class Sync extends AbstractQueuedSynchronizer {
+		    private static final long serialVersionUID = 4982264981922014374L;
+
+		    Sync(int count) {
+		        setState(count);
+		    }
+
+		    int getCount() {
+		        return getState();
+		    }
+
+		    protected int tryAcquireShared(int acquires) {
+		        return (getState() == 0) ? 1 : -1;
+		    }
+
+		    protected boolean tryReleaseShared(int releases) {
+		        // Decrement count; signal when transition to zero
+		        for (;;) {
+		            int c = getState();
+		            if (c == 0)
+		                return false;
+		            int nextc = c-1;
+		            if (compareAndSetState(c, nextc))
+		                return nextc == 0;
+		        }
+		    }
+		}
+
+		await实现：主线程执行await方法，tryAcquireShared方法中如果state不等于0，返回-1，则加入到等待队列中，主线程通过LockSupport.park(this)被挂起。
+
+		private void doAcquireSharedInterruptibly(int arg) throws InterruptedException {
+		    final Node node = addWaiter(Node.SHARED);
+		    boolean failed = true;
+		    try {
+		        for (;;) {
+		            final Node p = node.predecessor();
+		            if (p == head) {
+		                int r = tryAcquireShared(arg);
+		                if (r >= 0) {
+		                    setHeadAndPropagate(node, r);
+		                    p.next = null; // help GC
+		                    failed = false;
+		                    return;
+		                }
+		            }
+		            if (shouldParkAfterFailedAcquire(p, node) &&
+		                parkAndCheckInterrupt())
+		                throw new InterruptedException();
+		        }
+		    } finally {
+		        if (failed)
+		            cancelAcquire(node);
+		    }
+		}
+
+		countDown实现：countDown方法委托sync实现state的减1操作，即通过unsafe.compareAndSwapInt方法设置state值。如果state为0，通过LockSupport.unpark唤醒await方法中挂起的主线程。
+
+		public void countDown() {sync.releaseShared(1);}
+
+		private void doReleaseShared() {
+		    for (;;) {
+		        Node h = head;
+		        if (h != null && h != tail) {
+		            int ws = h.waitStatus;
+		            if (ws == Node.SIGNAL) {
+		                if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
+		                    continue;            // loop to recheck cases
+		                unparkSuccessor(h);
+		            }
+		            else if (ws == 0 &&
+		                     !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
+		                continue;                // loop on failed CAS
+		        }
+		        if (h == head)                   // loop if head changed
+		            break;
+		    }
+		}
+
+## CyclicBarrier
+	CyclicBarrier 允许一系列线程相互等待对方到达一个点，正如 barrier 表示的意思，该点就像一个栅栏，先到达的线程被阻塞在栅栏前，必须等到所有线程都到达了才能够通过栅栏；
+
+	CyclicBarrier 持有一个变量 parties，表示需要全部到达的线程数量；先到达的线程调用 barrier.await 方法进行等待，一旦到达的线程数达到 parties 变量所指定的数，栅栏打开，所有线程都可以通过；
+
+	CyclicBarrier 构造方法接受另一个 Runnable 类型参数 barrierAction，该参数表明再栅栏被打开的时候需要采取的动作，null 表示不采取任何动作，注意该动作将会在栅栏被打开而所有线程接着运行前被执行；
+
+	CyclicBarrier 是可重用的，当最后一个线程到达的时候，栅栏被打开，所有线程通过之后栅栏重新关闭，进入下一代；
+
+	CyclicBarrier.reset 方法能够手动重置栅栏，此时正在等待的线程会收到 BrokenBarrierException异常。
+
+## CountDownLatch和CyclicBarrier区别
+	CountDownLatch一般用于某个线程A等待若干个其他线程执行完任务之后，它才执行；
+
+　　而CyclicBarrier一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行；
+
+　　另外，CountDownLatch是不能够重用的，而CyclicBarrier是可以重用的。
+
 
 # 线程、进程、程序
 线程与进程相似，但线程是一个比进程更小的执行单位。一个进程在其执行的过程中可以产生多个线程。与进程不同的是同类的多个线程共享同一块内存空间和一组系统资源，所以系统在产生一个线程，或是在各个线程之间作切换工作时，负担要比进程小得多，也正因为如此，线程也被称为轻量级进程。
@@ -1196,6 +1356,23 @@ synchronized关键字与wait()和notify()/notifyAll()方法相结合可以实现
 
 ④ 性能已不是选择标准
 
+# 实现线程安全的计数器
+	
+	public class AtomicCounter {
+	 
+	    private volatile int count = 0;
+	 
+	    public synchronized void increment() {
+	        count++;
+	    }
+	 
+	    public int getCount() {
+	        return count;
+	    }
+	 
+	}
+
+
 # 线程池
 ## 好处
 降低资源消耗。 通过重复利用已创建的线程降低线程创建和销毁造成的消耗。
@@ -1253,7 +1430,15 @@ SingleThreadScheduledExecutor： 适用于需要单个后台线程执行周期�
 
 4，unit：时间单位。为keepAliveTime指定时间单位。
 
-5， workQueue：阻塞队列。用于保存任务的阻塞队列，关于阻塞队列可以看这篇文章。可以使用ArrayBlockingQueue, LinkedBlockingQueue, SynchronousQueue, PriorityBlockingQueue。
+5， workQueue：阻塞队列。用于保存任务的阻塞队列，关于阻塞队列可以看这篇文章。可以使用ArrayBlockingQueue, LinkedBlockingQueue, DelayQueue, PriorityBlockingQueue。
+
+	ArrayBlockingQueue：基于数组实现的一个阻塞队列，在创建ArrayBlockingQueue对象时必须制定容量大小。并且可以指定公平性与非公平性，默认情况下为非公平的，即不保证等待时间最长的队列最优先能够访问队列。
+
+　　LinkedBlockingQueue：基于链表实现的一个阻塞队列，在创建LinkedBlockingQueue对象时如果不指定容量大小，则默认大小为Integer.MAX_VALUE。
+
+　　PriorityBlockingQueue：它会按照元素的优先级对元素进行排序，按照优先级顺序出队，每次出队的元素都是优先级最高的元素。注意，此阻塞队列为无界阻塞队列，即容量没有上限（通过源码就可以知道，它没有容器满的信号标志），前面2种都是有界队列。
+
+　　DelayQueue：基于PriorityQueue，一种延时阻塞队列，DelayQueue中的元素只有当其指定的延迟时间到了，才能够从队列中获取到该元素。DelayQueue也是一个无界队列，因此往队列中插入数据的操作（生产者）永远不会被阻塞，而只有获取数据的操作（消费者）才会被阻塞。
 
 6， threadFactory：创建线程的工程类。可以通过指定线程工厂为每个创建出来的线程设置更有意义的名字，如果出现并发问题，也方便查找问题原因。
 
