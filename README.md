@@ -627,22 +627,22 @@ JDK1.8 以后的 HashMap 在解决哈希冲突时有了较大的变化，当链�
 数组是用来确定桶的位置，利用元素的key的hash值对数组长度取模得到.
 
 ## 有什么方法可以减少碰撞？
-	扰动函数可以减少碰撞，原理是如果两个不相等的对象返回不同的hashcode的话，那么碰撞的几率就会小些，这就意味着存链表结构减小，这样取值的话就不会频繁调用equal方法，这样就能提高HashMap的性能。（扰动即Hash方法内部的算法实现，目的是让不同对象返回不同hashcode。）
+扰动函数可以减少碰撞，原理是如果两个不相等的对象返回不同的hashcode的话，那么碰撞的几率就会小些，这就意味着存链表结构减小，这样取值的话就不会频繁调用equal方法，这样就能提高HashMap的性能。（扰动即Hash方法内部的算法实现，目的是让不同对象返回不同hashcode。）
 
-	使用不可变的、声明作final的对象，并且采用合适的equals()和hashCode()方法的话，将会减少碰撞的发生。不可变性使得能够缓存不同键的hashcode，这将提高整个获取对象的速度，使用String，Interger这样的wrapper类作为键是非常好的选择。为什么String, Interger这样的wrapper类适合作为键？因为String是final的，而且已经重写了equals()和hashCode()方法了。不可变性是必要的，因为为了要计算hashCode()，就要防止键值改变，如果键值在放入时和获取时返回不同的hashcode的话，那么就不能从HashMap中找到你想要的对象。
+使用不可变的、声明作final的对象，并且采用合适的equals()和hashCode()方法的话，将会减少碰撞的发生。不可变性使得能够缓存不同键的hashcode，这将提高整个获取对象的速度，使用String，Interger这样的wrapper类作为键是非常好的选择。为什么String, Interger这样的wrapper类适合作为键？因为String是final的，而且已经重写了equals()和hashCode()方法了。不可变性是必要的，因为为了要计算hashCode()，就要防止键值改变，如果键值在放入时和获取时返回不同的hashcode的话，那么就不能从HashMap中找到你想要的对象。
 
 ## hash冲突你还知道哪些解决办法？
 比较出名的有四种(1)开放定址法(2)链地址法(3)再哈希法(4)公共溢出区域法
 
 （1）开放地址法
 
-	开放定址法也称为再散列法，基本思想就是，如果p=H(key)出现冲突时，则以p为基础，再次hash，p1=H(p),如果p1再次出现冲突，则以p1为基础，以此类推，直到找到一个不冲突的哈希地址pi。 因此开放定址法所需要的hash表的长度要大于等于所需要存放的元素，而且因为存在再次hash，所以只能在删除的节点上做标记，而不能真正删除节点。
+开放定址法也称为再散列法，基本思想就是，如果p=H(key)出现冲突时，则以p为基础，再次hash，p1=H(p),如果p1再次出现冲突，则以p1为基础，以此类推，直到找到一个不冲突的哈希地址pi。因此开放定址法所需要的hash表的长度要大于等于所需要存放的元素，而且因为存在再次hash，所以只能在删除的节点上做标记，而不能真正删除节点。
 
-	缺点:容易产生堆积问题;不适合大规模的数据存储;插入时会发生多次冲突的情况;删除时要考虑与要删除元素互相冲突的另一个元素，比较复杂。
+缺点:容易产生堆积问题;不适合大规模的数据存储;插入时会发生多次冲突的情况;删除时要考虑与要删除元素互相冲突的另一个元素，比较复杂。
 
 （3）再哈希法(双重散列，多重散列)
 
-	提供多个不同的hash函数，当R1=H1(key1)发生冲突时，再计算R2=H2(key1)，直到没有冲突为止。 这样做虽然不易产生堆集，但增加了计算的时间。
+提供多个不同的hash函数，当R1=H1(key1)发生冲突时，再计算R2=H2(key1)，直到没有冲突为止。 这样做虽然不易产生堆集，但增加了计算的时间。
 
 （4）建立公共溢出区
 
@@ -685,6 +685,7 @@ current capacity为当前数组大小。
 ## 健可以为Null值么?
 必须可以，key为null的时候，hash算法最后的值以0来计算，也就是放在数组的第一个位置。
 
+	// 扰动函数
 	static final int hash(Object key) {
 		int h;
 		return (key == null) ? 0:(h=key.hashcode())^(h>>>16);
@@ -866,9 +867,9 @@ ConcurrentHashMap 和 Hashtable 的区别主要体现在实现线程安全的方
 3，存储put。
 LinkedHashMap并未重写父类HashMap的put方法，而是重写了父类HashMap的put方法调用的子方法void recordAccess(HashMap m)，void addEntry(int hash, K key, V value, int bucketIndex) 和void createEntry(int hash, K key, V value, int bucketIndex)，提供了自己特有的双向链接列表的实现。
 
-	1）put时，key已存在，替换value（同HashMap），并调用recordAccess方法，方法作用为根据accessOrder的值保持链表顺序不变或者将将访问的当前节点移到链表尾部(头结点的前一个节点)。
+1）put时，key已存在，替换value（同HashMap），并调用recordAccess方法，方法作用为根据accessOrder的值保持链表顺序不变或者将将访问的当前节点移到链表尾部(头结点的前一个节点)。
 
-	2）key不存在，添加新的Entry，仍然是Table[i]= newEntry，旧链表首个为newEntry.next（同HashMap）,将newEntry加到双向链表末尾（即header前，这样就保留了插入顺序）。
+2）key不存在，添加新的Entry，仍然是Table[i]= newEntry，旧链表首个为newEntry.next（同HashMap）,将newEntry加到双向链表末尾（即header前，这样就保留了插入顺序）。
 
 
 
@@ -1110,22 +1111,22 @@ throw 是用来抛出任意异常的，你可以抛出任意 Throwable，包括�
 		}
 
 ## CyclicBarrier
-	CyclicBarrier 允许一系列线程相互等待对方到达一个点，正如 barrier 表示的意思，该点就像一个栅栏，先到达的线程被阻塞在栅栏前，必须等到所有线程都到达了才能够通过栅栏；
+CyclicBarrier 允许一系列线程相互等待对方到达一个点，正如 barrier 表示的意思，该点就像一个栅栏，先到达的线程被阻塞在栅栏前，必须等到所有线程都到达了才能够通过栅栏；
 
-	CyclicBarrier 持有一个变量 parties，表示需要全部到达的线程数量；先到达的线程调用 barrier.await 方法进行等待，一旦到达的线程数达到 parties 变量所指定的数，栅栏打开，所有线程都可以通过；
+CyclicBarrier 持有一个变量 parties，表示需要全部到达的线程数量；先到达的线程调用 barrier.await 方法进行等待，一旦到达的线程数达到 parties 变量所指定的数，栅栏打开，所有线程都可以通过；
 
-	CyclicBarrier 构造方法接受另一个 Runnable 类型参数 barrierAction，该参数表明再栅栏被打开的时候需要采取的动作，null 表示不采取任何动作，注意该动作将会在栅栏被打开而所有线程接着运行前被执行；
+CyclicBarrier 构造方法接受另一个 Runnable 类型参数 barrierAction，该参数表明再栅栏被打开的时候需要采取的动作，null 表示不采取任何动作，注意该动作将会在栅栏被打开而所有线程接着运行前被执行；
 
-	CyclicBarrier 是可重用的，当最后一个线程到达的时候，栅栏被打开，所有线程通过之后栅栏重新关闭，进入下一代；
+CyclicBarrier 是可重用的，当最后一个线程到达的时候，栅栏被打开，所有线程通过之后栅栏重新关闭，进入下一代；
 
-	CyclicBarrier.reset 方法能够手动重置栅栏，此时正在等待的线程会收到 BrokenBarrierException异常。
+CyclicBarrier.reset 方法能够手动重置栅栏，此时正在等待的线程会收到 BrokenBarrierException异常。
 
 ## CountDownLatch和CyclicBarrier区别
-	CountDownLatch一般用于某个线程A等待若干个其他线程执行完任务之后，它才执行；
+CountDownLatch一般用于某个线程A等待若干个其他线程执行完任务之后，它才执行；
 
-　　而CyclicBarrier一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行；
+而CyclicBarrier一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行；
 
-　　另外，CountDownLatch是不能够重用的，而CyclicBarrier是可以重用的。
+另外，CountDownLatch是不能够重用的，而CyclicBarrier是可以重用的。
 
 
 # 线程、进程、程序
