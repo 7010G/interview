@@ -2268,7 +2268,7 @@ SELECT * FROM user WHERE username = 'user'
 把sql语句的模板（变量采用占位符进行占位）发送给mysql服务器，mysql服务器对sql语句的模板进行编译，编译之后根据语句的优化分析对相应的索引进行优化，在最终绑定参数时把相应的参数传送给mysql服务器，直接进行执行，节省了sql查询时间，以及mysql服务器的资源，达到一次编译、多次执行的目的，除此之外，还可以防止SQL注入。具体是怎样防止SQL注入的呢？实际上当将绑定的参数传到mysql服务器，mysql服务器对参数进行编译，即填充到相应的占位符的过程中，做了转义操作。
 
 
-# redis 
+# redis ( https://blog.csdn.net/ThinkWon/article/details/103522351 )
 ## memcached 的区别
 redis支持更丰富的数据类型（支持更复杂的应用场景）：Redis不仅仅支持简单的k/v类型的数据，同时还提供list，set，zset，hash等数据结构的存储。memcache支持简单的数据类型，String。
 
@@ -2276,6 +2276,14 @@ Redis支持数据的持久化，可以将内存中的数据保持在磁盘中，
 
 集群模式：memcached没有原生的集群模式，需要依靠客户端来实现往集群中分片写入数据；但是 redis 目前是原生支持 cluster 模式的.
 Memcached是多线程，非阻塞IO复用的网络模型；Redis使用单线程的多路 IO 复用模型。
+
+## 为什么MySQL和Redis都要使用独立进程来部署，开放端口来提供服务，为什么不写在内核中
+内核开发的特点：
+对浮点数的无法很好支持
+
+容积小而固定的栈（限制了大规模应用的开发）
+
+没有内存保护机制
 
 ## 常见数据结构以及使用场景分析（实现：https://www.cnblogs.com/binyue/p/5342281.html）
 ### 1.String
